@@ -3,7 +3,8 @@
   "defaultSeverity": "error",
   "rules": {
     "semicolon": [true, "always"],
-    "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}]
+    "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
+    "type-literal-delimiter": true
   }
 }
 

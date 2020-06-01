@@ -1,7 +1,7 @@
 
-import { Oracle } from './types';
+import { OffChainOracle, OnChainOracle } from './types';
 
-const ethgasstation: Oracle = {
+const ethgasstation: OffChainOracle = {
   name: 'ethgasstation',
   url: 'https://ethgasstation.info/json/ethgasAPI.json',
   instantPropertyName: 'fastest',
@@ -11,7 +11,7 @@ const ethgasstation: Oracle = {
   denominator: 10
 };
 
-const zoltu: Oracle = {
+const zoltu: OffChainOracle = {
   name: 'zoltu',
   url: 'https://gas-oracle.zoltu.io/',
   instantPropertyName: 'percentile_99',
@@ -21,8 +21,18 @@ const zoltu: Oracle = {
   denominator: 1
 };
 
+const chainLink: OnChainOracle = {
+  name: 'chainLink',
+  callData: '0x50d25bcd',
+  contract: '0xA417221ef64b1549575C977764E651c9FAB50141',
+  denominator: '1000000000'
+};
+
 export default {
-  oracles: [
+  offChainOracles: [
     ethgasstation, zoltu
+  ],
+  onChainOracles: [
+    chainLink
   ]
 };

@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import config from './config';
-import { GasPrice, Oracle } from './types';
+import { GasPrice, OffChainOracle, OnChainOracle } from './types';
+import BigNumber from 'bignumber.js';
 
 export class GasPriceOracle {
   lastGasPrice: GasPrice = {
@@ -9,9 +10,16 @@ export class GasPriceOracle {
     standard: 10,
     low: 1
   };
+  defaultRpc = 'https://api.mycryptoapi.com/eth';
 
-  async fetchGasPrices(): Promise<GasPrice> {
-    for (let oracle of config.oracles) {
+  constructor(defaultRpc?: string) {
+    if (defaultRpc) {
+      this.defaultRpc = defaultRpc;
+    }
+  }
+
+  async fetchGasPricesOffChain(throwIfFailsToFetch = true): Promise<GasPrice> {
+    for (let oracle of config.offChainOracles) {
       const { name, url, instantPropertyName, fastPropertyName, standardPropertyName, lowPropertyName, denominator } = oracle;
       try {
         const response = await fetch(url);
@@ -27,6 +35,7 @@ export class GasPriceOracle {
             low: parseFloat(gas[lowPropertyName]) / denominator
           };
           this.lastGasPrice = gasPrices;
+          return this.lastGasPrice;
         } else {
           throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
         }
@@ -34,11 +43,63 @@ export class GasPriceOracle {
         console.error(e.message);
       }
     }
-    // TODO: additional arg `throwIfFailsToFetch` that throws if it fails to fetch from all oracles
+    if (throwIfFailsToFetch) {
+      throw new Error('All oracles are down. Probaly network error.');
+    }
     return this.lastGasPrice;
   }
 
-  addOracle(oracle: Oracle) {
-    config.oracles.push(oracle);
+  async fetchGasPricesOnChain(throwIfFailsToFetch = true): Promise<GasPrice> {
+    for (let oracle of config.onChainOracles) {
+      const { name, callData, contract, denominator } = oracle;
+      let { rpc } = oracle;
+      rpc = rpc ? rpc : this.defaultRpc;
+      const body = { jsonrpc: '2.0',
+        id: 1337,
+        method: 'eth_call',
+        params: [{ 'data': callData, 'to': contract }, 'latest']
+      };
+      try {
+        const response = await fetch(rpc, {
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(body),
+          method: 'POST'
+        });
+        if (response.status === 200) {
+          const { result } = await response.json();
+          let fastGasPrice = new BigNumber(result);
+          if (fastGasPrice.isZero()) {
+            throw new Error(`${name} oracle provides corrupted values`);
+          }
+          fastGasPrice = fastGasPrice.div(denominator);
+          const gasPrices: GasPrice = {
+            instant: fastGasPrice.multipliedBy(1.3).toNumber(),
+            fast: fastGasPrice.toNumber(),
+            standard: fastGasPrice.multipliedBy(0.85).toNumber(),
+            low: fastGasPrice.multipliedBy(0.5).toNumber()
+          };
+          this.lastGasPrice = gasPrices;
+          return this.lastGasPrice;
+        } else {
+          throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
+        }
+      } catch (e) {
+        console.error(e.message);
+      }
+    }
+    if (throwIfFailsToFetch) {
+      throw new Error('All oracles are down. Probaly network error.');
+    }
+    return this.lastGasPrice;
+  }
+
+  addOffChainOracle(oracle: OffChainOracle) {
+    config.offChainOracles.push(oracle);
+  }
+
+  addOnChainOracle(oracle: OnChainOracle) {
+    config.onChainOracles.push(oracle);
   }
 }
