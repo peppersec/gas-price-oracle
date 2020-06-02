@@ -11,6 +11,8 @@ export class GasPriceOracle {
     low: 1
   };
   defaultRpc = 'https://api.mycryptoapi.com/eth';
+  offChainOracles = { ...config.offChainOracles };
+  onChainOracles = { ...config.onChainOracles };
 
   constructor(defaultRpc?: string) {
     if (defaultRpc) {
@@ -19,7 +21,7 @@ export class GasPriceOracle {
   }
 
   async fetchGasPricesOffChain(throwIfFailsToFetch = true): Promise<GasPrice> {
-    for (let oracle of config.offChainOracles) {
+    for (let oracle of Object.values(this.offChainOracles)) {
       const { name, url, instantPropertyName, fastPropertyName, standardPropertyName, lowPropertyName, denominator } = oracle;
       try {
         const response = await fetch(url);
@@ -50,7 +52,7 @@ export class GasPriceOracle {
   }
 
   async fetchGasPricesOnChain(throwIfFailsToFetch = true): Promise<GasPrice> {
-    for (let oracle of config.onChainOracles) {
+    for (let oracle of Object.values(this.onChainOracles)) {
       const { name, callData, contract, denominator } = oracle;
       let { rpc } = oracle;
       rpc = rpc ? rpc : this.defaultRpc;
@@ -95,11 +97,38 @@ export class GasPriceOracle {
     return this.lastGasPrice;
   }
 
+  async gasPrices(): Promise<GasPrice> {
+    let gas = this.lastGasPrice;
+    try {
+      gas = await this.fetchGasPricesOffChain();
+      return gas;
+    } catch (e) {
+      console.log('Failed to fetch gas prices from offchain oracles. Trying onchain ones...');
+    }
+
+    try {
+      gas = await this.fetchGasPricesOnChain();
+      return gas;
+    } catch (e) {
+      console.log('Failed to fetch gas prices from onchain oracles. Last known gas will be returned');
+    }
+
+    return gas;
+  }
+
   addOffChainOracle(oracle: OffChainOracle) {
-    config.offChainOracles.push(oracle);
+    this.offChainOracles[oracle.name] = oracle;
   }
 
   addOnChainOracle(oracle: OnChainOracle) {
-    config.onChainOracles.push(oracle);
+    this.onChainOracles[oracle.name] = oracle;
+  }
+
+  removeOnChainOracle(name: string) {
+    delete this.onChainOracles[name];
+  }
+
+  removeOffChainOracle(name: string) {
+    delete this.offChainOracles[name];
   }
 }

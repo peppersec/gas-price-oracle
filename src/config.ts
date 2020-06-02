@@ -21,18 +21,42 @@ const zoltu: OffChainOracle = {
   denominator: 1
 };
 
-const chainLink: OnChainOracle = {
-  name: 'chainLink',
+const etherchain: OffChainOracle = {
+  name: 'etherchain',
+  url: 'https://www.etherchain.org/api/gasPriceOracle',
+  instantPropertyName: 'fastest',
+  fastPropertyName: 'fast',
+  standardPropertyName: 'standard',
+  lowPropertyName: 'safeLow',
+  denominator: 1
+};
+
+const poa: OffChainOracle = {
+  name: 'poa',
+  url: 'https://gasprice.poa.network/',
+  instantPropertyName: 'instant',
+  fastPropertyName: 'fast',
+  standardPropertyName: 'standard',
+  lowPropertyName: 'slow',
+  denominator: 1
+};
+
+const chainlink: OnChainOracle = {
+  name: 'chainlink',
   callData: '0x50d25bcd',
   contract: '0xA417221ef64b1549575C977764E651c9FAB50141',
   denominator: '1000000000'
 };
 
+export const offChainOracles: { [key: string]: OffChainOracle } = {
+  ethgasstation, zoltu, poa, etherchain
+};
+
+export const onChainOracles: { [key: string]: OnChainOracle } = {
+  chainlink
+};
+
 export default {
-  offChainOracles: [
-    ethgasstation, zoltu
-  ],
-  onChainOracles: [
-    chainLink
-  ]
+  offChainOracles,
+  onChainOracles
 };
