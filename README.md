@@ -1,6 +1,16 @@
 # Gas Price Oracle library for Ethereum dApps
+A library that has a collection of onchain and offchain gas price oracle URLs
 
-## Instalation
+Current offchain list:  
+- https://ethgasstation.info/json/ethgasAPI.json  
+- https://gas-oracle.zoltu.io/  
+- https://www.etherchain.org/api/gasPriceOracle  
+- https://gasprice.poa.network/  
+
+Current onchain list:  
+- [chainlink](https://etherscan.io/address/0xA417221ef64b1549575C977764E651c9FAB50141)  
+
+## Installation
 `npm i gas-price-oracle`
 
 ## Import
@@ -9,11 +19,19 @@ const { GasPriceOracle } = require('gas-price-oracle');
 ```
 ## Usage
 ### Basic
-```js
-const oracle = new GasPriceOracle();
 
-oracle.gasPrices().then((gas) => {
-    console.log(gas)
+```js
+
+const options = {
+    defaultRpc: 'https://api.mycryptoapi.com/eth'
+}
+const oracle = new GasPriceOracle(options);
+// optional fallbackGasPrices
+const fallbackGasPrices = {
+    instant: 70, fast: 31, standard: 20, low: 7
+}
+oracle.gasPrices(fallbackGasPrices).then((gasPrices) => {
+    console.log(gasPrices) // { instant: 50, fast: 21, standard: 10, low: 3 }
 });
 ```
 
@@ -21,28 +39,17 @@ oracle.gasPrices().then((gas) => {
 ```js
 const oracle = new GasPriceOracle();
 
-oracle.fetchGasPricesOffChain().then((gas) => {
-    console.log(gas)
+oracle.fetchGasPricesOffChain().then((gasPrices) => {
+    console.log(gasPrices) // { instant: 50, fast: 21, standard: 10, low: 3 }
 });
 ```
 
 ### Custom RPC URL for onchain oracles
 ```js
-const customRpc = 'https://mainnet.infura.io/v3/<API_KEY>'
-const oracle = new GasPriceOracle(customRpc);
+const defaultRpc = 'https://mainnet.infura.io/v3/<API_KEY>'
+const oracle = new GasPriceOracle({ defaultRpc });
 
-oracle.fetchGasPricesOnChain().then((gas) => {
-    console.log(gas)
-});
-```
-
-### Don't throw an error if oracles are down
-```js
-oracle.fetchGasPricesOnChain(false).then((gas) => {
-    console.log(gas)
-});
-
-oracle.fetchGasPricesOffChain(false).then((gas) => {
-    console.log(gas)
+oracle.fetchGasPricesOnChain().then((gasPrices) => {
+    console.log(gasPrices) // 21
 });
 ```

@@ -41,46 +41,26 @@ describe('fetchGasPricesOffChain', function () {
     await oracle.fetchGasPricesOffChain().should.be.rejectedWith('All oracles are down. Probaly network error.');
     mockery.disable();
   });
-
-  it('should not throw if throwIfFailsToFetch is false', async function () {
-    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
-    const { GasPriceOracle } = require('../src/index');
-    oracle = new GasPriceOracle();
-    await oracle.fetchGasPricesOffChain(false);
-    mockery.disable();
-  });
 });
 
 describe('fetchGasPricesOnChain', function () {
   it('should work', async function () {
-    const gas: GasPrice = await oracle.fetchGasPricesOnChain();
+    const gas: number = await oracle.fetchGasPricesOnChain();
 
-    gas.instant.should.be.a('number');
-    gas.fast.should.be.a('number');
-    gas.standard.should.be.a('number');
-    gas.low.should.be.a('number');
-
-    gas.instant.should.be.above(gas.fast);
-    gas.fast.should.be.above(gas.standard);
-    gas.standard.should.be.above(gas.low);
-    gas.low.should.not.be.equal(0);
+    gas.should.be.a('number');
+    gas.should.not.be.equal(0);
   });
 
   it('should work with custom rpc', async function () {
     const rpc = 'https://ethereum-rpc.trustwalletapp.com';
-    const oracle = new GasPriceOracle(rpc);
+    const oracle = new GasPriceOracle({ defaultRpc: rpc });
     oracle.defaultRpc.should.be.equal(rpc);
-    const gas: GasPrice = await oracle.fetchGasPricesOnChain();
+    const gas: number = await oracle.fetchGasPricesOnChain();
 
-    gas.instant.should.be.a('number');
-    gas.fast.should.be.a('number');
-    gas.standard.should.be.a('number');
-    gas.low.should.be.a('number');
+    gas.should.be.a('number');
 
-    gas.instant.should.be.above(gas.fast);
-    gas.fast.should.be.above(gas.standard);
-    gas.standard.should.be.above(gas.low);
-    gas.low.should.not.be.equal(0);
+    gas.should.be.above(1);
+    gas.should.not.be.equal(0);
   });
 
   it('should remove oracle', async function () {
@@ -95,17 +75,10 @@ describe('fetchGasPricesOnChain', function () {
     oracle.removeOnChainOracle('chainlink');
     await oracle.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probaly network error.');
     oracle.addOnChainOracle(chainlink);
-    const gas: GasPrice = await oracle.fetchGasPricesOnChain();
+    const gas: number = await oracle.fetchGasPricesOnChain();
 
-    gas.instant.should.be.a('number');
-    gas.fast.should.be.a('number');
-    gas.standard.should.be.a('number');
-    gas.low.should.be.a('number');
-
-    gas.instant.should.be.above(gas.fast);
-    gas.fast.should.be.above(gas.standard);
-    gas.standard.should.be.above(gas.low);
-    gas.low.should.not.be.equal(0);
+    gas.should.be.a('number');
+    gas.should.not.be.equal(0);
   });
 
   it('should throw if all onchain oracles are down', async function () {
@@ -116,13 +89,6 @@ describe('fetchGasPricesOnChain', function () {
     mockery.disable();
   });
 
-  it('should not throw if throwIfFailsToFetch is false', async function () {
-    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
-    const { GasPriceOracle } = require('../src/index');
-    oracle = new GasPriceOracle();
-    await oracle.fetchGasPricesOnChain(false);
-    mockery.disable();
-  });
 });
 
 describe('gasPrice', function () {
@@ -138,6 +104,31 @@ describe('gasPrice', function () {
     gas.fast.should.be.above(gas.standard);
     gas.standard.should.be.above(gas.low);
     gas.low.should.not.be.equal(0);
+  });
+  it('should fallback', async function () {
+    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
+    const { GasPriceOracle } = require('../src/index');
+    oracle = new GasPriceOracle();
+    const gas: GasPrice = await oracle.gasPrices();
+
+    gas.instant.should.be.equal(28.6);
+    gas.fast.should.be.equal(22);
+    gas.standard.should.be.equal(18.7);
+    gas.low.should.be.equal(11);
+    mockery.disable();
+  });
+
+  it('should fallback to set values', async function () {
+    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
+    const { GasPriceOracle } = require('../src/index');
+    oracle = new GasPriceOracle();
+    const gas: GasPrice = await oracle.gasPrices({ instant: 50, fast: 21, standard: 10, low: 3 });
+
+    gas.instant.should.be.equal(50);
+    gas.fast.should.be.equal(21);
+    gas.standard.should.be.equal(10);
+    gas.low.should.be.equal(3);
+    mockery.disable();
   });
 });
 

@@ -1,26 +1,21 @@
 import fetch from 'node-fetch';
 import config from './config';
-import { GasPrice, OffChainOracle, OnChainOracle } from './types';
+import { GasPrice, OffChainOracle, OnChainOracle, ConstructorArgs } from './types';
 import BigNumber from 'bignumber.js';
 
 export class GasPriceOracle {
-  lastGasPrice: GasPrice = {
-    instant: 40,
-    fast: 21,
-    standard: 10,
-    low: 1
-  };
+  lastGasPrice: GasPrice;
   defaultRpc = 'https://api.mycryptoapi.com/eth';
   offChainOracles = { ...config.offChainOracles };
   onChainOracles = { ...config.onChainOracles };
 
-  constructor(defaultRpc?: string) {
-    if (defaultRpc) {
-      this.defaultRpc = defaultRpc;
+  constructor(options: ConstructorArgs) {
+    if (options && options.defaultRpc) {
+      this.defaultRpc = options.defaultRpc;
     }
   }
 
-  async fetchGasPricesOffChain(throwIfFailsToFetch = true): Promise<GasPrice> {
+  async fetchGasPricesOffChain(): Promise<GasPrice> {
     for (let oracle of Object.values(this.offChainOracles)) {
       const { name, url, instantPropertyName, fastPropertyName, standardPropertyName, lowPropertyName, denominator } = oracle;
       try {
@@ -36,8 +31,7 @@ export class GasPriceOracle {
             standard: parseFloat(gas[standardPropertyName]) / denominator,
             low: parseFloat(gas[lowPropertyName]) / denominator
           };
-          this.lastGasPrice = gasPrices;
-          return this.lastGasPrice;
+          return gasPrices;
         } else {
           throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
         }
@@ -45,18 +39,16 @@ export class GasPriceOracle {
         console.error(e.message);
       }
     }
-    if (throwIfFailsToFetch) {
-      throw new Error('All oracles are down. Probaly network error.');
-    }
-    return this.lastGasPrice;
+    throw new Error('All oracles are down. Probaly network error.');
   }
 
-  async fetchGasPricesOnChain(throwIfFailsToFetch = true): Promise<GasPrice> {
+  async fetchGasPricesOnChain(): Promise<number> {
     for (let oracle of Object.values(this.onChainOracles)) {
       const { name, callData, contract, denominator } = oracle;
       let { rpc } = oracle;
       rpc = rpc ? rpc : this.defaultRpc;
-      const body = { jsonrpc: '2.0',
+      const body = {
+        jsonrpc: '2.0',
         id: 1337,
         method: 'eth_call',
         params: [{ 'data': callData, 'to': contract }, 'latest']
@@ -76,14 +68,7 @@ export class GasPriceOracle {
             throw new Error(`${name} oracle provides corrupted values`);
           }
           fastGasPrice = fastGasPrice.div(denominator);
-          const gasPrices: GasPrice = {
-            instant: fastGasPrice.multipliedBy(1.3).toNumber(),
-            fast: fastGasPrice.toNumber(),
-            standard: fastGasPrice.multipliedBy(0.85).toNumber(),
-            low: fastGasPrice.multipliedBy(0.5).toNumber()
-          };
-          this.lastGasPrice = gasPrices;
-          return this.lastGasPrice;
+          return fastGasPrice.toNumber();
         } else {
           throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
         }
@@ -91,29 +76,38 @@ export class GasPriceOracle {
         console.error(e.message);
       }
     }
-    if (throwIfFailsToFetch) {
-      throw new Error('All oracles are down. Probaly network error.');
-    }
-    return this.lastGasPrice;
+    throw new Error('All oracles are down. Probaly network error.');
   }
 
-  async gasPrices(): Promise<GasPrice> {
-    let gas = this.lastGasPrice;
+  async gasPrices(fallbackGasPrices?: GasPrice): Promise<GasPrice> {
+    const defaultFastGas = 22;
+    const defaultFallbackGasPrices = {
+      instant: defaultFastGas * 1.3,
+      fast: defaultFastGas,
+      standard: defaultFastGas * 0.85,
+      low: defaultFastGas * 0.5
+    };
+    this.lastGasPrice = this.lastGasPrice || fallbackGasPrices || defaultFallbackGasPrices;
     try {
-      gas = await this.fetchGasPricesOffChain();
-      return gas;
+      this.lastGasPrice = await this.fetchGasPricesOffChain();
+      return this.lastGasPrice;
     } catch (e) {
       console.log('Failed to fetch gas prices from offchain oracles. Trying onchain ones...');
     }
 
     try {
-      gas = await this.fetchGasPricesOnChain();
-      return gas;
+      const fastGas = await this.fetchGasPricesOnChain();
+      this.lastGasPrice = {
+        instant: fastGas * 1.3,
+        fast: fastGas,
+        standard: fastGas * 0.85,
+        low: fastGas * 0.5
+      };
+      return this.lastGasPrice;
     } catch (e) {
       console.log('Failed to fetch gas prices from onchain oracles. Last known gas will be returned');
     }
-
-    return gas;
+    return this.lastGasPrice;
   }
 
   addOffChainOracle(oracle: OffChainOracle) {

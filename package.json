@@ -1,8 +1,13 @@
 {
   "name": "gas-price-oracle",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Gas Price Oracle library for Ethereum dApps.",
   "main": "lib/index.js",
+  "homepage": "https://github.com/peppersec/gas-price-oracle",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peppersec/gas-price-oracle.git"
+  },
   "types": "lib/index.d.ts",
   "prepare": "npm run build",
   "prepublishOnly": "npm test && npm run lint",
@@ -12,7 +17,12 @@
     "lint": "tslint -p tsconfig.json"
   },
   "author": "Alexey Pertsev <alexey@peppersec.com> (https://peppersec.com)",
-  "keywords": ["Gas", "Gas price", "Ethereum", "Oracle"],
+  "keywords": [
+    "Gas",
+    "Gas price",
+    "Ethereum",
+    "Oracle"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.2.11",

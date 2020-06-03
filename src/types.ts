@@ -22,3 +22,7 @@ export type GasPrice = {
   standard: number;
   low: number;
 };
+
+export interface ConstructorArgs {
+  defaultRpc?: string;
+}
