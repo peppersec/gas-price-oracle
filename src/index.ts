@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 import config from './config';
 import { GasPrice, OffChainOracle, OnChainOracle, ConstructorArgs } from './types';
 import BigNumber from 'bignumber.js';
@@ -19,9 +19,9 @@ export class GasPriceOracle {
     for (let oracle of Object.values(this.offChainOracles)) {
       const { name, url, instantPropertyName, fastPropertyName, standardPropertyName, lowPropertyName, denominator } = oracle;
       try {
-        const response = await fetch(url);
+        const response = await axios.get(url, { timeout: 10000 });
         if (response.status === 200) {
-          const gas = await response.json();
+          const gas = response.data;
           if (Number(gas[fastPropertyName]) === 0) {
             throw new Error(`${name} oracle provides corrupted values`);
           }
@@ -54,15 +54,9 @@ export class GasPriceOracle {
         params: [{ 'data': callData, 'to': contract }, 'latest']
       };
       try {
-        const response = await fetch(rpc, {
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify(body),
-          method: 'POST'
-        });
+        const response = await axios.post(rpc, body, { timeout: 10000 });
         if (response.status === 200) {
-          const { result } = await response.json();
+          const { result } = response.data;
           let fastGasPrice = new BigNumber(result);
           if (fastGasPrice.isZero()) {
             throw new Error(`${name} oracle provides corrupted values`);

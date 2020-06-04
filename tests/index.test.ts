@@ -9,10 +9,15 @@ chai.should();
 let oracle = new GasPriceOracle();
 
 before('before', function () {
-  let fetchMock = () => {
-    throw new Error('Mocked for tests');
+  let axiosMock = {
+    get: () => {
+      throw new Error('axios GET methdod is mocked for tests');
+    },
+    post: () => {
+      throw new Error('axios POST methdod is mocked for tests');
+    }
   };
-  mockery.registerMock('node-fetch', fetchMock);
+  mockery.registerMock('axios', axiosMock);
 });
 
 beforeEach('beforeEach', function () {
