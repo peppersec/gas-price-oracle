@@ -1,4 +1,4 @@
-# Gas Price Oracle library for Ethereum dApps
+# Gas Price Oracle library for Ethereum dApps [![npm](https://img.shields.io/npm/v/gas-price-oracle)](https://www.npmjs.com/package/gas-price-oracle)
 A library that has a collection of onchain and offchain gas price oracle URLs
 
 Current offchain list:  

@@ -1,0 +1,63 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ '*' ]
+    tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm ci
+      - run: npm test
+      - name: TSLint checks
+        uses: mooyoul/tslint-actions@v1.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          project: tsconfig.json
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: NPM login
+        # NPM doesn't understand env vars and needs auth file lol
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Set vars
+        id: vars
+        run: |
+          echo "::set-output name=version::$(echo ${GITHUB_REF#refs/tags/v})"
+          echo "::set-output name=repo_name::$(echo ${GITHUB_REPOSITORY#*/})"
+      - name: Check package.json version vs tag
+        run: |
+          [ ${{ steps.vars.outputs.version }} = $(grep '"version":' package.json | grep -o "[0-9.]*") ] || (echo "Git tag doesn't match version in package.json" && false)
+      - name: Publish to npm
+        run: npm publish
+      - name: Create GitHub Release Draft
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.vars.outputs.version }}
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Telegram Message Notify
+        uses: appleboy/telegram-action@0.0.7
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: 🚀 Published [${{ steps.vars.outputs.repo_name }}](https://github.com/${{ github.repository }}) version [${{ steps.vars.outputs.version }}](https://www.npmjs.com/package/${{ steps.vars.outputs.repo_name }}/v/${{ steps.vars.outputs.version }}) to npm
+          debug: true
+          format: markdown
