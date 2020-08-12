@@ -30,6 +30,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - run: npm install
       - run: npm run build
       - name: NPM login
         # NPM doesn't understand env vars and needs auth file lol
