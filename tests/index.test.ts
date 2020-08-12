@@ -51,7 +51,6 @@ describe('fetchGasPricesOffChain', function () {
 describe('fetchGasPricesOnChain', function () {
   it('should work', async function () {
     const gas: number = await oracle.fetchGasPricesOnChain();
-
     gas.should.be.a('number');
     gas.should.be.above(1);
     gas.should.not.be.equal(0);

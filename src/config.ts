@@ -44,7 +44,7 @@ const poa: OffChainOracle = {
 const chainlink: OnChainOracle = {
   name: 'chainlink',
   callData: '0x50d25bcd',
-  contract: '0xA417221ef64b1549575C977764E651c9FAB50141',
+  contract: '0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C',
   denominator: '1000000000'
 };
 
