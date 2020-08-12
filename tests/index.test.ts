@@ -33,9 +33,9 @@ describe('fetchGasPricesOffChain', function () {
     gas.standard.should.be.a('number');
     gas.low.should.be.a('number');
 
-    gas.instant.should.be.above(gas.fast);
-    gas.fast.should.be.above(gas.standard);
-    gas.standard.should.be.above(gas.low);
+    gas.instant.should.be.at.least(gas.fast); // greater than or equal to the given number.
+    gas.fast.should.be.at.least(gas.standard);
+    gas.standard.should.be.at.least(gas.low);
     gas.low.should.not.be.equal(0);
   });
 
@@ -105,9 +105,9 @@ describe('gasPrice', function () {
     gas.standard.should.be.a('number');
     gas.low.should.be.a('number');
 
-    gas.instant.should.be.above(gas.fast);
-    gas.fast.should.be.above(gas.standard);
-    gas.standard.should.be.above(gas.low);
+    gas.instant.should.be.at.least(gas.fast);
+    gas.fast.should.be.at.least(gas.standard);
+    gas.standard.should.be.at.least(gas.low);
     gas.low.should.not.be.equal(0);
   });
   it('should fallback', async function () {
