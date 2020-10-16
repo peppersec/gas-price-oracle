@@ -24,6 +24,19 @@ beforeEach('beforeEach', function () {
   oracle = new GasPriceOracle();
 });
 
+describe('constructor', function () {
+  it('should set default values', async function () {
+    oracle.configuration.defaultRpc.should.be.equal('https://api.mycryptoapi.com/eth');
+    oracle.configuration.timeout.should.be.equal(10000);
+  });
+
+  it('should set passed values', async function () {
+    const newOracle = new GasPriceOracle({ timeout: 1337 });
+    newOracle.configuration.defaultRpc.should.be.equal('https://api.mycryptoapi.com/eth');
+    newOracle.configuration.timeout.should.be.equal(1337);
+  });
+});
+
 describe('fetchGasPricesOffChain', function () {
   it('should work', async function () {
     const gas: GasPrice = await oracle.fetchGasPricesOffChain();
@@ -61,7 +74,7 @@ describe('fetchGasPricesOnChain', function () {
   it('should work with custom rpc', async function () {
     const rpc = 'https://ethereum-rpc.trustwalletapp.com';
     const oracle = new GasPriceOracle({ defaultRpc: rpc });
-    oracle.defaultRpc.should.be.equal(rpc);
+    oracle.configuration.defaultRpc.should.be.equal(rpc);
     const gas: number = await oracle.fetchGasPricesOnChain();
 
     gas.should.be.a('number');

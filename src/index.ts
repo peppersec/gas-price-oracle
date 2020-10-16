@@ -1,89 +1,77 @@
 import axios from 'axios';
 import config from './config';
-import { GasPrice, OffChainOracle, OnChainOracle, ConstructorArgs, GasPriceKey } from './types';
+import { GasPrice, OffChainOracle, OnChainOracle, Config, GasPriceKey } from './types';
 import BigNumber from 'bignumber.js';
 
 export class GasPriceOracle {
   lastGasPrice: GasPrice;
-  defaultRpc = 'https://api.mycryptoapi.com/eth';
   offChainOracles = { ...config.offChainOracles };
   onChainOracles = { ...config.onChainOracles };
+  configuration: Config = {
+    defaultRpc: 'https://api.mycryptoapi.com/eth',
+    timeout: 10000,
+  };
 
-  constructor(options: ConstructorArgs) {
-    if (options && options.defaultRpc) {
-      this.defaultRpc = options.defaultRpc;
+  constructor(options: Config) {
+    if (options) {
+      Object.assign(this.configuration, options);
     }
   }
 
+  async askOracle(oracle: OffChainOracle): Promise<GasPrice> {
+    const {
+      name,
+      url,
+      instantPropertyName,
+      fastPropertyName,
+      standardPropertyName,
+      lowPropertyName,
+      denominator,
+    } = oracle;
+    const response = await axios.get(url, { timeout: this.configuration.timeout });
+    if (response.status === 200) {
+      const gas = response.data;
+      if (Number(gas[fastPropertyName]) === 0) {
+        throw new Error(`${name} oracle provides corrupted values`);
+      }
+      const gasPrices: GasPrice = {
+        instant: parseFloat(gas[instantPropertyName]) / denominator,
+        fast: parseFloat(gas[fastPropertyName]) / denominator,
+        standard: parseFloat(gas[standardPropertyName]) / denominator,
+        low: parseFloat(gas[lowPropertyName]) / denominator,
+      };
+      return gasPrices;
+    } else {
+      throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
+    }
+  }
   async fetchGasPricesOffChain(): Promise<GasPrice> {
     for (let oracle of Object.values(this.offChainOracles)) {
-      const {
-        name,
-        url,
-        instantPropertyName,
-        fastPropertyName,
-        standardPropertyName,
-        lowPropertyName,
-        denominator,
-      } = oracle;
       try {
-        const response = await axios.get(url, { timeout: 10000 });
-        if (response.status === 200) {
-          const gas = response.data;
-          if (Number(gas[fastPropertyName]) === 0) {
-            throw new Error(`${name} oracle provides corrupted values`);
-          }
-          const gasPrices: GasPrice = {
-            instant: parseFloat(gas[instantPropertyName]) / denominator,
-            fast: parseFloat(gas[fastPropertyName]) / denominator,
-            standard: parseFloat(gas[standardPropertyName]) / denominator,
-            low: parseFloat(gas[lowPropertyName]) / denominator,
-          };
-          return gasPrices;
-        } else {
-          throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
-        }
+        return await this.askOracle(oracle);
       } catch (e) {
-        console.error(e.message);
+        console.info(e.message);
+        continue;
       }
     }
     throw new Error('All oracles are down. Probably a network error.');
   }
 
-  async fetchMedianGasPriceOffChain(): Promise<GasPrice> {
-    const allGasPrices: GasPrice[] = [];
-    for (let oracle of Object.values(this.offChainOracles)) {
-      const {
-        name,
-        url,
-        instantPropertyName,
-        fastPropertyName,
-        standardPropertyName,
-        lowPropertyName,
-        denominator,
-      } = oracle;
-      try {
-        const response = await axios.get(url, { timeout: 10000 });
-        // todo parallel requests
-        if (response.status === 200) {
-          const gas = response.data;
-          if (Number(gas[fastPropertyName]) === 0) {
-            throw new Error(`${name} oracle provides corrupted values`);
-          }
-          const gasPrices: GasPrice = {
-            instant: parseFloat(gas[instantPropertyName]) / denominator,
-            fast: parseFloat(gas[fastPropertyName]) / denominator,
-            standard: parseFloat(gas[standardPropertyName]) / denominator,
-            low: parseFloat(gas[lowPropertyName]) / denominator,
-          };
-          allGasPrices.push(gasPrices);
-        } else {
-          throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
-        }
-      } catch (e) {
-        console.error(e.message);
-      }
+  async fetchMedianGasPriceOffChain() {
+    const promises: Promise<GasPrice>[] = [];
+    for (let oracle of Object.values(this.offChainOracles) as Array<OffChainOracle>) {
+      promises.push(this.askOracle(oracle));
     }
+
+    const settledPromises = await Promise.allSettled(promises);
+    const allGasPrices = settledPromises.reduce((acc: GasPrice[], result) => {
+      if (result.status === 'fulfilled') {
+        acc.push(result.value);
+        return acc;
+      }
+      return acc;
+    }, []);
+
     if (allGasPrices.length === 0) {
       throw new Error('All oracles are down. Probably a network error.');
     }
@@ -124,9 +112,8 @@ export class GasPriceOracle {
 
   async fetchGasPricesOnChain(): Promise<number> {
     for (let oracle of Object.values(this.onChainOracles)) {
-      const { name, callData, contract, denominator } = oracle;
-      let { rpc } = oracle;
-      rpc = rpc ? rpc : this.defaultRpc;
+      const { name, callData, contract, denominator, rpc } = oracle;
+      const rpcUrl = rpc || this.configuration.defaultRpc;
       const body = {
         jsonrpc: '2.0',
         id: 1337,
@@ -134,7 +121,7 @@ export class GasPriceOracle {
         params: [{ data: callData, to: contract }, 'latest'],
       };
       try {
-        const response = await axios.post(rpc, body, { timeout: 10000 });
+        const response = await axios.post(rpcUrl!, body, { timeout: this.configuration.timeout });
         if (response.status === 200) {
           const { result } = response.data;
           let fastGasPrice = new BigNumber(result);

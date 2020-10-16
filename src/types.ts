@@ -22,6 +22,7 @@ export type GasPrice = {
 
 export type GasPriceKey = 'instant' | 'fast' | 'standard' | 'low';
 
-export interface ConstructorArgs {
+export interface Config {
   defaultRpc?: string;
+  timeout?: number;
 }
