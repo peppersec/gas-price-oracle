@@ -11,11 +11,11 @@ let oracle = new GasPriceOracle();
 before('before', function () {
   let axiosMock = {
     get: () => {
-      throw new Error('axios GET methdod is mocked for tests');
+      throw new Error('axios GET method is mocked for tests');
     },
     post: () => {
-      throw new Error('axios POST methdod is mocked for tests');
-    }
+      throw new Error('axios POST method is mocked for tests');
+    },
   };
   mockery.registerMock('axios', axiosMock);
 });
@@ -43,7 +43,9 @@ describe('fetchGasPricesOffChain', function () {
     mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
     const { GasPriceOracle } = require('../src/index');
     oracle = new GasPriceOracle();
-    await oracle.fetchGasPricesOffChain().should.be.rejectedWith('All oracles are down. Probaly network error.');
+    await oracle
+      .fetchGasPricesOffChain()
+      .should.be.rejectedWith('All oracles are down. Probably a network error.');
     mockery.disable();
   });
 });
@@ -71,14 +73,18 @@ describe('fetchGasPricesOnChain', function () {
   it('should remove oracle', async function () {
     await oracle.fetchGasPricesOnChain();
     oracle.removeOnChainOracle('chainlink');
-    await oracle.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probaly network error.');
+    await oracle
+      .fetchGasPricesOnChain()
+      .should.be.rejectedWith('All oracles are down. Probably a network error.');
   });
 
   it('should add oracle', async function () {
     const { chainlink } = onChainOracles;
     await oracle.fetchGasPricesOnChain();
     oracle.removeOnChainOracle('chainlink');
-    await oracle.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probaly network error.');
+    await oracle
+      .fetchGasPricesOnChain()
+      .should.be.rejectedWith('All oracles are down. Probably a network error.');
     oracle.addOnChainOracle(chainlink);
     const gas: number = await oracle.fetchGasPricesOnChain();
 
@@ -90,10 +96,11 @@ describe('fetchGasPricesOnChain', function () {
     mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
     const { GasPriceOracle } = require('../src/index');
     oracle = new GasPriceOracle();
-    await oracle.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probaly network error.');
+    await oracle
+      .fetchGasPricesOnChain()
+      .should.be.rejectedWith('All oracles are down. Probably a network error.');
     mockery.disable();
   });
-
 });
 
 describe('gasPrice', function () {

@@ -1,4 +1,3 @@
-
 import { OffChainOracle, OnChainOracle } from './types';
 
 const ethgasstation: OffChainOracle = {
@@ -8,7 +7,7 @@ const ethgasstation: OffChainOracle = {
   fastPropertyName: 'fast',
   standardPropertyName: 'average',
   lowPropertyName: 'safeLow',
-  denominator: 10
+  denominator: 10,
 };
 
 const zoltu: OffChainOracle = {
@@ -18,7 +17,7 @@ const zoltu: OffChainOracle = {
   fastPropertyName: 'percentile_90',
   standardPropertyName: 'percentile_60',
   lowPropertyName: 'percentile_30',
-  denominator: 1
+  denominator: 1,
 };
 
 const etherchain: OffChainOracle = {
@@ -28,7 +27,7 @@ const etherchain: OffChainOracle = {
   fastPropertyName: 'fast',
   standardPropertyName: 'standard',
   lowPropertyName: 'safeLow',
-  denominator: 1
+  denominator: 1,
 };
 
 const poa: OffChainOracle = {
@@ -38,25 +37,28 @@ const poa: OffChainOracle = {
   fastPropertyName: 'fast',
   standardPropertyName: 'standard',
   lowPropertyName: 'slow',
-  denominator: 1
+  denominator: 1,
 };
 
 const chainlink: OnChainOracle = {
   name: 'chainlink',
   callData: '0x50d25bcd',
   contract: '0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C',
-  denominator: '1000000000'
+  denominator: '1000000000',
 };
 
 export const offChainOracles: { [key: string]: OffChainOracle } = {
-  ethgasstation, zoltu, poa, etherchain
+  ethgasstation,
+  zoltu,
+  poa,
+  etherchain,
 };
 
 export const onChainOracles: { [key: string]: OnChainOracle } = {
-  chainlink
+  chainlink,
 };
 
 export default {
   offChainOracles,
-  onChainOracles
+  onChainOracles,
 };

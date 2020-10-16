@@ -17,7 +17,15 @@ export class GasPriceOracle {
 
   async fetchGasPricesOffChain(): Promise<GasPrice> {
     for (let oracle of Object.values(this.offChainOracles)) {
-      const { name, url, instantPropertyName, fastPropertyName, standardPropertyName, lowPropertyName, denominator } = oracle;
+      const {
+        name,
+        url,
+        instantPropertyName,
+        fastPropertyName,
+        standardPropertyName,
+        lowPropertyName,
+        denominator,
+      } = oracle;
       try {
         const response = await axios.get(url, { timeout: 10000 });
         if (response.status === 200) {
@@ -29,7 +37,7 @@ export class GasPriceOracle {
             instant: parseFloat(gas[instantPropertyName]) / denominator,
             fast: parseFloat(gas[fastPropertyName]) / denominator,
             standard: parseFloat(gas[standardPropertyName]) / denominator,
-            low: parseFloat(gas[lowPropertyName]) / denominator
+            low: parseFloat(gas[lowPropertyName]) / denominator,
           };
           return gasPrices;
         } else {
@@ -39,7 +47,7 @@ export class GasPriceOracle {
         console.error(e.message);
       }
     }
-    throw new Error('All oracles are down. Probaly network error.');
+    throw new Error('All oracles are down. Probably a network error.');
   }
 
   async fetchGasPricesOnChain(): Promise<number> {
@@ -51,7 +59,7 @@ export class GasPriceOracle {
         jsonrpc: '2.0',
         id: 1337,
         method: 'eth_call',
-        params: [{ 'data': callData, 'to': contract }, 'latest']
+        params: [{ data: callData, to: contract }, 'latest'],
       };
       try {
         const response = await axios.post(rpc, body, { timeout: 10000 });
@@ -70,7 +78,7 @@ export class GasPriceOracle {
         console.error(e.message);
       }
     }
-    throw new Error('All oracles are down. Probaly network error.');
+    throw new Error('All oracles are down. Probably a network error.');
   }
 
   async gasPrices(fallbackGasPrices?: GasPrice): Promise<GasPrice> {
@@ -79,7 +87,7 @@ export class GasPriceOracle {
       instant: defaultFastGas * 1.3,
       fast: defaultFastGas,
       standard: defaultFastGas * 0.85,
-      low: defaultFastGas * 0.5
+      low: defaultFastGas * 0.5,
     };
     this.lastGasPrice = this.lastGasPrice || fallbackGasPrices || defaultFallbackGasPrices;
     try {
@@ -95,7 +103,7 @@ export class GasPriceOracle {
         instant: fastGas * 1.3,
         fast: fastGas,
         standard: fastGas * 0.85,
-        low: fastGas * 0.5
+        low: fastGas * 0.5,
       };
       return this.lastGasPrice;
     } catch (e) {
