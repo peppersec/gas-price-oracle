@@ -15,8 +15,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm ci
-      - run: npm test
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
       - name: TSLint checks
         uses: mooyoul/tslint-actions@v1.1.1
         with:
@@ -30,8 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - run: npm install
-      - run: npm run build
+      - run: yarn install
+      - run: yarn run build
       - name: NPM login
         # NPM doesn't understand env vars and needs auth file lol
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
