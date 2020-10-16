@@ -17,11 +17,10 @@ export type OnChainOracle = {
 };
 
 export type GasPrice = {
-  instant: number;
-  fast: number;
-  standard: number;
-  low: number;
+  [key in GasPriceKey]: number;
 };
+
+export type GasPriceKey = 'instant' | 'fast' | 'standard' | 'low';
 
 export interface ConstructorArgs {
   defaultRpc?: string;

@@ -144,6 +144,51 @@ describe('gasPrice', function () {
   });
 });
 
+describe('median', function () {
+  it('should work', async function () {
+    const gas1 = { instant: 100, fast: 100, standard: 100, low: 100 };
+    const gas2 = { instant: 90, fast: 90, standard: 90, low: 90 };
+    const gas3 = { instant: 70, fast: 70, standard: 70, low: 70 };
+    const gas4 = { instant: 110.1, fast: 110.1, standard: 110.1, low: 110.1 };
+    let gas: GasPrice = await oracle.median([gas1, gas2, gas3]);
+    gas.instant.should.be.a('number');
+    gas.fast.should.be.a('number');
+    gas.standard.should.be.a('number');
+    gas.low.should.be.a('number');
+
+    gas.instant.should.be.eq(90);
+    gas.fast.should.be.eq(90);
+    gas.standard.should.be.eq(90);
+    gas.low.should.be.eq(90);
+
+    gas = await oracle.median([gas1, gas2, gas3, gas4]);
+    gas.instant.should.be.a('number');
+    gas.fast.should.be.a('number');
+    gas.standard.should.be.a('number');
+    gas.low.should.be.a('number');
+
+    gas.instant.should.be.eq(95);
+    gas.fast.should.be.eq(95);
+    gas.standard.should.be.eq(95);
+    gas.low.should.be.eq(95);
+  });
+});
+
+describe('fetchMedianGasPriceOffChain', function () {
+  it('should work', async function () {
+    let gas: GasPrice = await oracle.fetchMedianGasPriceOffChain();
+    gas.instant.should.be.a('number');
+    gas.fast.should.be.a('number');
+    gas.standard.should.be.a('number');
+    gas.low.should.be.a('number');
+
+    gas.instant.should.be.at.least(gas.fast); // greater than or equal to the given number.
+    gas.fast.should.be.at.least(gas.standard);
+    gas.standard.should.be.at.least(gas.low);
+    gas.low.should.not.be.equal(0);
+  });
+});
+
 after('after', function () {
   after(function () {
     mockery.disable();

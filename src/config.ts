@@ -49,9 +49,9 @@ const chainlink: OnChainOracle = {
 
 export const offChainOracles: { [key: string]: OffChainOracle } = {
   ethgasstation,
-  zoltu,
   poa,
   etherchain,
+  zoltu,
 };
 
 export const onChainOracles: { [key: string]: OnChainOracle } = {
