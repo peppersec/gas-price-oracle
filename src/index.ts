@@ -122,6 +122,7 @@ export class GasPriceOracle {
         params: [{ data: callData, to: contract }, 'latest'],
       };
       try {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const response = await axios.post(rpcUrl!, body, { timeout: this.configuration.timeout });
         if (response.status === 200) {
           const { result } = response.data;
@@ -174,19 +175,19 @@ export class GasPriceOracle {
     return this.lastGasPrice;
   }
 
-  addOffChainOracle(oracle: OffChainOracle) {
+  addOffChainOracle(oracle: OffChainOracle): void {
     this.offChainOracles[oracle.name] = oracle;
   }
 
-  addOnChainOracle(oracle: OnChainOracle) {
+  addOnChainOracle(oracle: OnChainOracle): void {
     this.onChainOracles[oracle.name] = oracle;
   }
 
-  removeOnChainOracle(name: string) {
+  removeOnChainOracle(name: string): void {
     delete this.onChainOracles[name];
   }
 
-  removeOffChainOracle(name: string) {
+  removeOffChainOracle(name: string): void {
     delete this.offChainOracles[name];
   }
 }
