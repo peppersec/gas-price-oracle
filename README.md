@@ -45,7 +45,7 @@ oracle.gasPrices(fallbackGasPrices).then(gasPrices => {
 });
 ```
 
-The `gasPrices` method also accepts `median` argument (`true`) by default. For more details see [below](<#Offchain-oracles-only-(get-median-price)>).
+The `gasPrices` method also accepts `median` argument (`true`) by default. For more details see [below](#offchain-oracles-only-get-median-price).
 Under the hood it's a combination of `fetchMedianGasPriceOffChain`(`fetchGasPricesOffChain`) and `fetchGasPricesOnChain` methods.
 
 ### Offchain oracles only
