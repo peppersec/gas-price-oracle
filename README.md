@@ -8,10 +8,11 @@ Current offchain list:
 - https://gas-oracle.zoltu.io/
 - https://www.etherchain.org/api/gasPriceOracle
 - https://gasprice.poa.network/
+- https://www.gasnow.org/api/v3/gas/price
 
 Current onchain list:
 
-- [chainlink](https://etherscan.io/address/0xA417221ef64b1549575C977764E651c9FAB50141)
+- [chainlink](https://etherscan.io/address/0x169e633a2d1e6c10dd91238ba11c4a708dfef37c#readContract)
 
 ## Installation
 

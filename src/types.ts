@@ -6,6 +6,7 @@ export type OffChainOracle = {
   standardPropertyName: string;
   lowPropertyName: string;
   denominator: number;
+  additionalDataProperty: string | null;
 };
 
 export type OnChainOracle = {

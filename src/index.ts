@@ -27,10 +27,11 @@ export class GasPriceOracle {
       standardPropertyName,
       lowPropertyName,
       denominator,
+      additionalDataProperty,
     } = oracle;
     const response = await axios.get(url, { timeout: this.configuration.timeout });
     if (response.status === 200) {
-      const gas = response.data;
+      const gas = additionalDataProperty ? response.data[additionalDataProperty] : response.data;
       if (Number(gas[fastPropertyName]) === 0) {
         throw new Error(`${name} oracle provides corrupted values`);
       }
