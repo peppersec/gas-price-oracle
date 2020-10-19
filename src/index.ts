@@ -1,6 +1,6 @@
 import axios from 'axios';
 import config from './config';
-import { GasPrice, OffChainOracle, OnChainOracle, Config, GasPriceKey } from './types';
+import { GasPrice, OffChainOracle, OnChainOracle, Config, GasPriceKey, Options } from './types';
 import BigNumber from 'bignumber.js';
 
 export class GasPriceOracle {
@@ -12,7 +12,7 @@ export class GasPriceOracle {
     timeout: 10000,
   };
 
-  constructor(options: Config) {
+  constructor(options?: Options) {
     if (options) {
       Object.assign(this.configuration, options);
     }
@@ -46,7 +46,7 @@ export class GasPriceOracle {
     }
   }
   async fetchGasPricesOffChain(): Promise<GasPrice> {
-    for (let oracle of Object.values(this.offChainOracles)) {
+    for (const oracle of Object.values(this.offChainOracles)) {
       try {
         return await this.askOracle(oracle);
       } catch (e) {
@@ -57,9 +57,9 @@ export class GasPriceOracle {
     throw new Error('All oracles are down. Probably a network error.');
   }
 
-  async fetchMedianGasPriceOffChain() {
+  async fetchMedianGasPriceOffChain(): Promise<GasPrice> {
     const promises: Promise<GasPrice>[] = [];
-    for (let oracle of Object.values(this.offChainOracles) as Array<OffChainOracle>) {
+    for (const oracle of Object.values(this.offChainOracles) as Array<OffChainOracle>) {
       promises.push(this.askOracle(oracle));
     }
 
@@ -111,7 +111,7 @@ export class GasPriceOracle {
   }
 
   async fetchGasPricesOnChain(): Promise<number> {
-    for (let oracle of Object.values(this.onChainOracles)) {
+    for (const oracle of Object.values(this.onChainOracles)) {
       const { name, callData, contract, denominator, rpc } = oracle;
       const rpcUrl = rpc || this.configuration.defaultRpc;
       const body = {

@@ -17,11 +17,7 @@ jobs:
           node-version: 12
       - run: yarn install --frozen-lockfile
       - run: yarn test
-      - name: TSLint checks
-        uses: mooyoul/tslint-actions@v1.1.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          project: tsconfig.json
+      - run: yarn lint
 
   publish:
     runs-on: ubuntu-latest

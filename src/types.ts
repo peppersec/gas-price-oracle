@@ -22,7 +22,9 @@ export type GasPrice = {
 
 export type GasPriceKey = 'instant' | 'fast' | 'standard' | 'low';
 
-export interface Config {
+export type Options = {
   defaultRpc?: string;
   timeout?: number;
-}
+};
+
+export type Config = Required<Options>;

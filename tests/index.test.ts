@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { GasPrice } from '../src/types';
 import mockery from 'mockery';
 import chai from 'chai';
 import { onChainOracles } from '../src/config';
 
-const { GasPriceOracle } = require('../src/index');
+import { GasPriceOracle } from '../src/index';
 chai.use(require('chai-as-promised'));
 chai.should();
 let oracle = new GasPriceOracle();
 
 before('before', function () {
-  let axiosMock = {
+  const axiosMock = {
     get: () => {
       throw new Error('axios GET method is mocked for tests');
     },
@@ -189,7 +191,7 @@ describe('median', function () {
 
 describe('fetchMedianGasPriceOffChain', function () {
   it('should work', async function () {
-    let gas: GasPrice = await oracle.fetchMedianGasPriceOffChain();
+    const gas: GasPrice = await oracle.fetchMedianGasPriceOffChain();
     gas.instant.should.be.a('number');
     gas.fast.should.be.a('number');
     gas.standard.should.be.a('number');
