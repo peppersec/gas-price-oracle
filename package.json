@@ -14,7 +14,7 @@
   "scripts": {
     "test": "mocha -r ts-node/register --timeout 30000 --exit src tests/*.test.ts",
     "build": "tsc",
-    "eslint": "eslint '*/**/*.{js,ts}' --quiet --fix",
+    "eslint": "eslint 'src/*.ts' --quiet --fix",
     "prettier:check": "prettier --check . --config .prettierrc",
     "prettier:fix": "prettier --write . --config .prettierrc",
     "lint": "yarn eslint && yarn prettier:check"
