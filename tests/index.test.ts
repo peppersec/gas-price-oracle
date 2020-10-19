@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { GasPrice } from '../src/types';
 import mockery from 'mockery';
 import chai from 'chai';
 import { onChainOracles } from '../src/config';
 
-const { GasPriceOracle } = require('../src/index');
+import { GasPriceOracle } from '../src/index';
 chai.use(require('chai-as-promised'));
 chai.should();
 let oracle = new GasPriceOracle();
 
 before('before', function () {
-  let axiosMock = {
+  const axiosMock = {
     get: () => {
       throw new Error('axios GET method is mocked for tests');
     },
@@ -22,6 +24,19 @@ before('before', function () {
 
 beforeEach('beforeEach', function () {
   oracle = new GasPriceOracle();
+});
+
+describe('constructor', function () {
+  it('should set default values', async function () {
+    oracle.configuration.defaultRpc.should.be.equal('https://api.mycryptoapi.com/eth');
+    oracle.configuration.timeout.should.be.equal(10000);
+  });
+
+  it('should set passed values', async function () {
+    const newOracle = new GasPriceOracle({ timeout: 1337 });
+    newOracle.configuration.defaultRpc.should.be.equal('https://api.mycryptoapi.com/eth');
+    newOracle.configuration.timeout.should.be.equal(1337);
+  });
 });
 
 describe('fetchGasPricesOffChain', function () {
@@ -61,7 +76,7 @@ describe('fetchGasPricesOnChain', function () {
   it('should work with custom rpc', async function () {
     const rpc = 'https://ethereum-rpc.trustwalletapp.com';
     const oracle = new GasPriceOracle({ defaultRpc: rpc });
-    oracle.defaultRpc.should.be.equal(rpc);
+    oracle.configuration.defaultRpc.should.be.equal(rpc);
     const gas: number = await oracle.fetchGasPricesOnChain();
 
     gas.should.be.a('number');
@@ -141,6 +156,51 @@ describe('gasPrice', function () {
     gas.standard.should.be.equal(10);
     gas.low.should.be.equal(3);
     mockery.disable();
+  });
+});
+
+describe('median', function () {
+  it('should work', async function () {
+    const gas1 = { instant: 100, fast: 100, standard: 100, low: 100 };
+    const gas2 = { instant: 90, fast: 90, standard: 90, low: 90 };
+    const gas3 = { instant: 70, fast: 70, standard: 70, low: 70 };
+    const gas4 = { instant: 110.1, fast: 110.1, standard: 110.1, low: 110.1 };
+    let gas: GasPrice = await oracle.median([gas1, gas2, gas3]);
+    gas.instant.should.be.a('number');
+    gas.fast.should.be.a('number');
+    gas.standard.should.be.a('number');
+    gas.low.should.be.a('number');
+
+    gas.instant.should.be.eq(90);
+    gas.fast.should.be.eq(90);
+    gas.standard.should.be.eq(90);
+    gas.low.should.be.eq(90);
+
+    gas = await oracle.median([gas1, gas2, gas3, gas4]);
+    gas.instant.should.be.a('number');
+    gas.fast.should.be.a('number');
+    gas.standard.should.be.a('number');
+    gas.low.should.be.a('number');
+
+    gas.instant.should.be.eq(95);
+    gas.fast.should.be.eq(95);
+    gas.standard.should.be.eq(95);
+    gas.low.should.be.eq(95);
+  });
+});
+
+describe('fetchMedianGasPriceOffChain', function () {
+  it('should work', async function () {
+    const gas: GasPrice = await oracle.fetchMedianGasPriceOffChain();
+    gas.instant.should.be.a('number');
+    gas.fast.should.be.a('number');
+    gas.standard.should.be.a('number');
+    gas.low.should.be.a('number');
+
+    gas.instant.should.be.at.least(gas.fast); // greater than or equal to the given number.
+    gas.fast.should.be.at.least(gas.standard);
+    gas.standard.should.be.at.least(gas.low);
+    gas.low.should.not.be.equal(0);
   });
 });
 

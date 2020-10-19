@@ -6,6 +6,7 @@ export type OffChainOracle = {
   standardPropertyName: string;
   lowPropertyName: string;
   denominator: number;
+  additionalDataProperty: string | null;
 };
 
 export type OnChainOracle = {
@@ -17,12 +18,14 @@ export type OnChainOracle = {
 };
 
 export type GasPrice = {
-  instant: number;
-  fast: number;
-  standard: number;
-  low: number;
+  [key in GasPriceKey]: number;
 };
 
-export interface ConstructorArgs {
+export type GasPriceKey = 'instant' | 'fast' | 'standard' | 'low';
+
+export type Options = {
   defaultRpc?: string;
-}
+  timeout?: number;
+};
+
+export type Config = Required<Options>;

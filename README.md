@@ -8,10 +8,11 @@ Current offchain list:
 - https://gas-oracle.zoltu.io/
 - https://www.etherchain.org/api/gasPriceOracle
 - https://gasprice.poa.network/
+- https://www.gasnow.org/api/v3/gas/price
 
 Current onchain list:
 
-- [chainlink](https://etherscan.io/address/0xA417221ef64b1549575C977764E651c9FAB50141)
+- [chainlink](https://etherscan.io/address/0x169e633a2d1e6c10dd91238ba11c4a708dfef37c#readContract)
 
 ## Installation
 
@@ -30,6 +31,7 @@ const { GasPriceOracle } = require('gas-price-oracle');
 ```js
 const options = {
   defaultRpc: 'https://api.mycryptoapi.com/eth',
+  timeout: 10000,
 };
 const oracle = new GasPriceOracle(options);
 // optional fallbackGasPrices
@@ -44,6 +46,9 @@ oracle.gasPrices(fallbackGasPrices).then(gasPrices => {
 });
 ```
 
+The `gasPrices` method also accepts `median` argument (`true`) by default. For more details see [below](#offchain-oracles-only-get-median-price).
+Under the hood it's a combination of `fetchMedianGasPriceOffChain`(`fetchGasPricesOffChain`) and `fetchGasPricesOnChain` methods.
+
 ### Offchain oracles only
 
 ```js
@@ -53,6 +58,18 @@ oracle.fetchGasPricesOffChain().then(gasPrices => {
   console.log(gasPrices); // { instant: 50, fast: 21, standard: 10, low: 3 }
 });
 ```
+
+### Offchain oracles only (get median price)
+
+```js
+const oracle = new GasPriceOracle();
+
+oracle.fetchMedianGasPriceOffChain().then(gasPrices => {
+  console.log(gasPrices); // { instant: 50, fast: 21, standard: 10, low: 3 }
+});
+```
+
+it returns the median gas price of all the oracles configured.
 
 ### Custom RPC URL for onchain oracles
 

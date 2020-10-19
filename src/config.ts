@@ -8,6 +8,7 @@ const ethgasstation: OffChainOracle = {
   standardPropertyName: 'average',
   lowPropertyName: 'safeLow',
   denominator: 10,
+  additionalDataProperty: null,
 };
 
 const zoltu: OffChainOracle = {
@@ -18,6 +19,7 @@ const zoltu: OffChainOracle = {
   standardPropertyName: 'percentile_60',
   lowPropertyName: 'percentile_30',
   denominator: 1,
+  additionalDataProperty: null,
 };
 
 const etherchain: OffChainOracle = {
@@ -28,6 +30,7 @@ const etherchain: OffChainOracle = {
   standardPropertyName: 'standard',
   lowPropertyName: 'safeLow',
   denominator: 1,
+  additionalDataProperty: null,
 };
 
 const poa: OffChainOracle = {
@@ -38,6 +41,18 @@ const poa: OffChainOracle = {
   standardPropertyName: 'standard',
   lowPropertyName: 'slow',
   denominator: 1,
+  additionalDataProperty: null,
+};
+
+const gasNow: OffChainOracle = {
+  name: 'gasNow',
+  url: 'https://www.gasnow.org/api/v3/gas/price?utm_source=gas-price-oracle',
+  instantPropertyName: 'rapid',
+  fastPropertyName: 'fast',
+  standardPropertyName: 'standard',
+  lowPropertyName: 'slow',
+  denominator: 1e9,
+  additionalDataProperty: 'data',
 };
 
 const chainlink: OnChainOracle = {
@@ -49,9 +64,10 @@ const chainlink: OnChainOracle = {
 
 export const offChainOracles: { [key: string]: OffChainOracle } = {
   ethgasstation,
-  zoltu,
+  gasNow,
   poa,
   etherchain,
+  zoltu,
 };
 
 export const onChainOracles: { [key: string]: OnChainOracle } = {
