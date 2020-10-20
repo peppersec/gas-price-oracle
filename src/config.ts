@@ -55,6 +55,17 @@ const gasNow: OffChainOracle = {
   additionalDataProperty: 'data',
 };
 
+const anyblock: OffChainOracle = {
+  name: 'anyblock',
+  url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice',
+  instantPropertyName: 'instant',
+  fastPropertyName: 'fast',
+  standardPropertyName: 'standard',
+  lowPropertyName: 'slow',
+  denominator: 1,
+  additionalDataProperty: null,
+};
+
 const chainlink: OnChainOracle = {
   name: 'chainlink',
   callData: '0x50d25bcd',
@@ -64,6 +75,7 @@ const chainlink: OnChainOracle = {
 
 export const offChainOracles: { [key: string]: OffChainOracle } = {
   ethgasstation,
+  anyblock,
   gasNow,
   poa,
   etherchain,

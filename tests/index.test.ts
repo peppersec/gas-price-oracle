@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { GasPrice } from '../src/types';
+import { GasPrice, OffChainOracle } from '../src/types';
 import mockery from 'mockery';
 import chai from 'chai';
-import { onChainOracles } from '../src/config';
+import { onChainOracles, offChainOracles } from '../src/config';
 
 import { GasPriceOracle } from '../src/index';
 chai.use(require('chai-as-promised'));
@@ -201,6 +201,29 @@ describe('fetchMedianGasPriceOffChain', function () {
     gas.fast.should.be.at.least(gas.standard);
     gas.standard.should.be.at.least(gas.low);
     gas.low.should.not.be.equal(0);
+  });
+});
+
+describe('askOracle', function () {
+  it('all oracles should answer', async function () {
+    for (const o of Object.values(offChainOracles) as Array<OffChainOracle>) {
+      try {
+        const gas: GasPrice = await oracle.askOracle(o);
+
+        gas.instant.should.be.a('number');
+        gas.fast.should.be.a('number');
+        gas.standard.should.be.a('number');
+        gas.low.should.be.a('number');
+
+        gas.instant.should.be.at.least(gas.fast); // greater than or equal to the given number.
+        gas.fast.should.be.at.least(gas.standard);
+        gas.standard.should.be.at.least(gas.low);
+        gas.low.should.not.be.equal(0);
+      } catch (e) {
+        console.error(`Failed to get data from ${o.name} oracle`);
+        throw new Error(e);
+      }
+    }
   });
 });
 
