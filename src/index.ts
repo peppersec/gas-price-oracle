@@ -41,7 +41,7 @@ export class GasPriceOracle {
         standard: parseFloat(gas[standardPropertyName]) / denominator,
         low: parseFloat(gas[lowPropertyName]) / denominator,
       };
-      return gasPrices;
+      return this.normalize(gasPrices);
     } else {
       throw new Error(`Fetch gasPrice from ${name} oracle failed. Trying another one...`);
     }
@@ -108,7 +108,25 @@ export class GasPriceOracle {
       const middle = Math.floor(allPrices.length / 2);
       medianGasPrice[type] = isEven ? (allPrices[middle - 1] + allPrices[middle]) / 2.0 : allPrices[middle];
     }
-    return medianGasPrice;
+    return this.normalize(medianGasPrice);
+  }
+  /**
+   * Normalizes GasPrice values to Gwei. No more than 9 decimals basically
+   * @param GasPrice _gas
+   */
+  normalize(_gas: GasPrice): GasPrice {
+    const format = {
+      decimalSeparator: '.',
+      groupSeparator: '',
+    };
+    const decimals = 9;
+
+    const gas: GasPrice = { ..._gas };
+    for (const type of Object.keys(gas) as Array<keyof GasPrice>) {
+      gas[type] = Number(new BigNumber(gas[type]).toFormat(decimals, format));
+    }
+
+    return gas;
   }
 
   async fetchGasPricesOnChain(): Promise<number> {
