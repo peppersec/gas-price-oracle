@@ -1,4 +1,4 @@
-import { OffChainOracle, OnChainOracle } from './types';
+import { OffChainOracle, OnChainOracle, OffChainOracles, OnChainOracles } from '../types';
 
 const ethgasstation: OffChainOracle = {
   name: 'ethgasstation',
@@ -73,7 +73,7 @@ const chainlink: OnChainOracle = {
   denominator: '1000000000',
 };
 
-export const offChainOracles: { [key: string]: OffChainOracle } = {
+export const offChainOracles: OffChainOracles = {
   ethgasstation,
   anyblock,
   gasNow,
@@ -82,7 +82,7 @@ export const offChainOracles: { [key: string]: OffChainOracle } = {
   zoltu,
 };
 
-export const onChainOracles: { [key: string]: OnChainOracle } = {
+export const onChainOracles: OnChainOracles = {
   chainlink,
 };
 

@@ -3,12 +3,12 @@
 import { GasPrice, OffChainOracle } from '../src/types';
 import mockery from 'mockery';
 import chai from 'chai';
-import { onChainOracles, offChainOracles } from '../src/config';
 
 import { GasPriceOracle } from '../src/index';
 chai.use(require('chai-as-promised'));
 chai.should();
 let oracle = new GasPriceOracle();
+let { onChainOracles, offChainOracles } = oracle;
 
 before('before', function () {
   const axiosMock = {
@@ -24,6 +24,7 @@ before('before', function () {
 
 beforeEach('beforeEach', function () {
   oracle = new GasPriceOracle();
+  ({ onChainOracles, offChainOracles } = oracle);
 });
 
 describe('constructor', function () {

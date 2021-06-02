@@ -1,13 +1,23 @@
 import axios from 'axios';
-import config from './config';
-import { GasPrice, OffChainOracle, OnChainOracle, Config, GasPriceKey, Options } from './types';
+import { ChainId, networks } from './config';
+import {
+  Config,
+  Options,
+  GasPrice,
+  GasPriceKey,
+  OffChainOracle,
+  OnChainOracle,
+  OnChainOracles,
+  OffChainOracles,
+} from './types';
 import BigNumber from 'bignumber.js';
 
 export class GasPriceOracle {
   lastGasPrice: GasPrice;
-  offChainOracles = { ...config.offChainOracles };
-  onChainOracles = { ...config.onChainOracles };
+  offChainOracles: OffChainOracles;
+  onChainOracles: OnChainOracles;
   configuration: Config = {
+    chainId: ChainId.MAINNET,
     defaultRpc: 'https://api.mycryptoapi.com/eth',
     timeout: 10000,
   };
@@ -16,6 +26,10 @@ export class GasPriceOracle {
     if (options) {
       Object.assign(this.configuration, options);
     }
+
+    const { offChainOracles, onChainOracles } = networks[this.configuration.chainId];
+    this.offChainOracles = { ...offChainOracles };
+    this.onChainOracles = { ...onChainOracles };
   }
 
   async askOracle(oracle: OffChainOracle): Promise<GasPrice> {
