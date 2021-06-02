@@ -9,6 +9,8 @@ export type OffChainOracle = {
   additionalDataProperty: string | null;
 };
 
+export type OffChainOracles = { [key: string]: OffChainOracle };
+
 export type OnChainOracle = {
   name: string;
   rpc?: string;
@@ -17,6 +19,8 @@ export type OnChainOracle = {
   denominator: string;
 };
 
+export type OnChainOracles = { [key: string]: OnChainOracle };
+
 export type GasPrice = {
   [key in GasPriceKey]: number;
 };
@@ -24,8 +28,16 @@ export type GasPrice = {
 export type GasPriceKey = 'instant' | 'fast' | 'standard' | 'low';
 
 export type Options = {
+  chainId?: number;
   defaultRpc?: string;
   timeout?: number;
 };
 
 export type Config = Required<Options>;
+
+export type NetworkConfig = {
+  [key in number]: {
+    offChainOracles: OffChainOracles;
+    onChainOracles: OnChainOracles;
+  };
+};
