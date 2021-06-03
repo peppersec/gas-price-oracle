@@ -2,6 +2,10 @@
 
 A library that has a collection of onchain and offchain gas price oracle URLs
 
+## Supported networks
+
+### Ethereum Mainnet
+
 Current offchain list:
 
 - https://ethgasstation.info/json/ethgasAPI.json
@@ -13,6 +17,12 @@ Current offchain list:
 Current onchain list:
 
 - [chainlink](https://etherscan.io/address/0x169e633a2d1e6c10dd91238ba11c4a708dfef37c#readContract)
+
+### Binance Smart Chain
+
+Current offchain list:
+
+- https://bscgas.info/
 
 ## Installation
 
@@ -30,6 +40,7 @@ const { GasPriceOracle } = require('gas-price-oracle');
 
 ```js
 const options = {
+  chainId: 1,
   defaultRpc: 'https://api.mycryptoapi.com/eth',
   timeout: 10000,
 };
