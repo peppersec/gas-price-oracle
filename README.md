@@ -43,6 +43,12 @@ const options = {
   chainId: 1,
   defaultRpc: 'https://api.mycryptoapi.com/eth',
   timeout: 10000,
+  defaultFallbackGasPrices: {
+    instant: 28,
+    fast: 22,
+    standard: 17,
+    low: 11,
+  },
 };
 const oracle = new GasPriceOracle(options);
 // optional fallbackGasPrices

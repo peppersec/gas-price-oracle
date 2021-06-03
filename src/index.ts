@@ -12,6 +12,7 @@ import {
 } from './types';
 import BigNumber from 'bignumber.js';
 
+const defaultFastGas = 22;
 export class GasPriceOracle {
   lastGasPrice: GasPrice;
   offChainOracles: OffChainOracles;
@@ -20,6 +21,12 @@ export class GasPriceOracle {
     chainId: ChainId.MAINNET,
     defaultRpc: 'https://api.mycryptoapi.com/eth',
     timeout: 10000,
+    defaultFallbackGasPrices: {
+      instant: defaultFastGas * 1.3,
+      fast: defaultFastGas,
+      standard: defaultFastGas * 0.85,
+      low: defaultFastGas * 0.5,
+    },
   };
 
   constructor(options?: Options) {
@@ -175,14 +182,7 @@ export class GasPriceOracle {
   }
 
   async gasPrices(fallbackGasPrices?: GasPrice, median = true): Promise<GasPrice> {
-    const defaultFastGas = 22;
-    const defaultFallbackGasPrices = {
-      instant: defaultFastGas * 1.3,
-      fast: defaultFastGas,
-      standard: defaultFastGas * 0.85,
-      low: defaultFastGas * 0.5,
-    };
-    this.lastGasPrice = this.lastGasPrice || fallbackGasPrices || defaultFallbackGasPrices;
+    this.lastGasPrice = this.lastGasPrice || fallbackGasPrices || this.configuration.defaultFallbackGasPrices;
     try {
       this.lastGasPrice = median
         ? await this.fetchMedianGasPriceOffChain()
