@@ -3,7 +3,7 @@ import { OffChainOracle, OffChainOracles, OnChainOracles } from '../types';
 const bscgas: OffChainOracle = {
   name: 'bscgas',
   url: 'https://bscgas.info/gas',
-  instantPropertyName: 'imediate',
+  instantPropertyName: 'instant',
   fastPropertyName: 'fast',
   standardPropertyName: 'standard',
   lowPropertyName: 'slow',
