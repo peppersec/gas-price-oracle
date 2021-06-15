@@ -24,6 +24,12 @@ Current offchain list:
 
 - https://bscgas.info/
 
+### Polygon (Matic) Network
+
+Current offchain list:
+
+- https://gasstation-mainnet.matic.network/
+
 ## Installation
 
 `npm i gas-price-oracle`
