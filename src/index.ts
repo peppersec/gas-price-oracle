@@ -34,9 +34,13 @@ export class GasPriceOracle {
       Object.assign(this.configuration, options);
     }
 
-    const { offChainOracles, onChainOracles } = networks[this.configuration.chainId];
-    this.offChainOracles = { ...offChainOracles };
-    this.onChainOracles = { ...onChainOracles };
+    const network = networks[this.configuration.chainId];
+
+    if (network) {
+      const { offChainOracles, onChainOracles } = network;
+      this.offChainOracles = { ...offChainOracles };
+      this.onChainOracles = { ...onChainOracles };
+    }
   }
 
   async askOracle(oracle: OffChainOracle): Promise<GasPrice> {
