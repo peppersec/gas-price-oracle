@@ -11,17 +11,6 @@ const ethgasstation: OffChainOracle = {
   additionalDataProperty: null,
 };
 
-// const zoltu: OffChainOracle = {
-//   name: 'zoltu',
-//   url: 'https://gas-oracle.zoltu.io/',
-//   instantPropertyName: 'percentile_99',
-//   fastPropertyName: 'percentile_90',
-//   standardPropertyName: 'percentile_60',
-//   lowPropertyName: 'percentile_30',
-//   denominator: 1,
-//   additionalDataProperty: null,
-// };
-
 const etherchain: OffChainOracle = {
   name: 'etherchain',
   url: 'https://www.etherchain.org/api/gasPriceOracle',
@@ -79,7 +68,6 @@ export const offChainOracles: OffChainOracles = {
   gasNow,
   poa,
   etherchain,
-  // zoltu,
 };
 
 export const onChainOracles: OnChainOracles = {
