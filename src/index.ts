@@ -185,6 +185,34 @@ export class GasPriceOracle {
     throw new Error('All oracles are down. Probably a network error.');
   }
 
+  async fetchGasPriceFromRpc(): Promise<number> {
+    const rpcUrl = this.configuration.defaultRpc;
+    const body = {
+      jsonrpc: '2.0',
+      id: 1337,
+      method: 'eth_gasPrice',
+      params: [],
+    };
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const response = await axios.post(rpcUrl!, body, { timeout: this.configuration.timeout });
+      if (response.status === 200) {
+        const { result } = response.data;
+        let fastGasPrice = new BigNumber(result);
+        if (fastGasPrice.isZero()) {
+          throw new Error(`Default RPC provides corrupted values`);
+        }
+        fastGasPrice = fastGasPrice.div(1e9);
+        return fastGasPrice.toNumber();
+      }
+
+      throw new Error(`Fetch gasPrice from default RPC failed..`);
+    } catch (e) {
+      console.error(e.message);
+      throw new Error('Default RPC is down. Probably a network error.');
+    }
+  }
+
   async gasPrices(fallbackGasPrices?: GasPrice, median = true): Promise<GasPrice> {
     this.lastGasPrice = this.lastGasPrice || fallbackGasPrices || this.configuration.defaultFallbackGasPrices;
     try {
@@ -206,7 +234,20 @@ export class GasPriceOracle {
       };
       return this.lastGasPrice;
     } catch (e) {
-      console.log('Failed to fetch gas prices from onchain oracles. Last known gas will be returned');
+      console.log('Failed to fetch gas prices from onchain oracles. Trying from default RPC...');
+    }
+
+    try {
+      const fastGas = await this.fetchGasPriceFromRpc();
+      this.lastGasPrice = {
+        instant: fastGas * 1.3,
+        fast: fastGas,
+        standard: fastGas * 0.85,
+        low: fastGas * 0.5,
+      };
+      return this.lastGasPrice;
+    } catch (e) {
+      console.log('Failed to fetch gas prices from default RPC. Last known gas will be returned');
     }
     return this.lastGasPrice;
   }
