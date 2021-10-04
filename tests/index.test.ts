@@ -119,6 +119,37 @@ describe('fetchGasPricesOnChain', function () {
   });
 });
 
+describe('fetchGasPriceFromRpc', function () {
+  it('should work', async function () {
+    const gas: number = await oracle.fetchGasPriceFromRpc();
+    gas.should.be.a('number');
+    gas.should.be.above(1);
+    gas.should.not.be.equal(0);
+  });
+
+  it('should work with custom rpc', async function () {
+    const rpc = 'https://ethereum-rpc.trustwalletapp.com';
+    const oracle = new GasPriceOracle({ defaultRpc: rpc });
+    oracle.configuration.defaultRpc.should.be.equal(rpc);
+    const gas: number = await oracle.fetchGasPriceFromRpc();
+
+    gas.should.be.a('number');
+
+    gas.should.be.above(1);
+    gas.should.not.be.equal(0);
+  });
+
+  it('should throw if default rpc is down', async function () {
+    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
+    const { GasPriceOracle } = require('../src/index');
+    oracle = new GasPriceOracle();
+    await oracle
+      .fetchGasPriceFromRpc()
+      .should.be.rejectedWith('Default RPC is down. Probably a network error.');
+    mockery.disable();
+  });
+});
+
 describe('gasPrice', function () {
   it('should work', async function () {
     const gas: GasPrice = await oracle.gasPrices();
