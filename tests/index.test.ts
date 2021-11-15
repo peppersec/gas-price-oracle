@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import chai from 'chai';
 import mockery from 'mockery';
+import BigNumber from 'bignumber.js';
 
 import { ChainId, NETWORKS } from '../src/config';
 import { GasPriceOracle } from '../src/index';
@@ -237,6 +238,63 @@ describe('fetchMedianGasPriceOffChain', function () {
     gas.fast.should.be.at.least(gas.standard);
     gas.standard.should.be.at.least(gas.low);
     gas.low.should.not.be.equal(0);
+  });
+});
+
+describe('normalize result values', function () {
+  const wrongDecimalsGas = {
+    instant: 1.1,
+    fast: 2.12345678901,
+    standard: 3.12345678901,
+    low: 3.1234567890123456789,
+  };
+
+  const checkDecimals = (gas: GasPrice) => {
+    const gasPrices: number[] = Object.values(gas);
+
+    for (const gas of gasPrices) {
+      new BigNumber(gas).dp().should.be.at.most(9);
+    }
+  };
+
+  it('default fallback should be normalized', function () {
+    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
+
+    const { GasPriceOracle } = require('../src/index');
+    oracle = new GasPriceOracle({
+      defaultFallbackGasPrices: wrongDecimalsGas,
+    });
+    const { configuration } = oracle;
+
+    checkDecimals(configuration.defaultFallbackGasPrices);
+
+    mockery.disable();
+  });
+
+  it('fallback should be normalized', async function () {
+    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
+
+    const { GasPriceOracle } = require('../src/index');
+    oracle = new GasPriceOracle();
+
+    const gas = await oracle.gasPrices(wrongDecimalsGas);
+
+    checkDecimals(gas);
+    mockery.disable();
+  });
+
+  it('rpc fallback should be normalized', async function () {
+    const { GasPriceOracle } = require('../src/index');
+    oracle = new GasPriceOracle({ chainId: ChainId.ARBITRUM, defaultRpc: 'https://arb1.arbitrum.io/rpc' });
+
+    const { onChainOracles, offChainOracles } = oracle;
+
+    Object.keys(onChainOracles).forEach(chainOracle => oracle.removeOnChainOracle(chainOracle));
+    Object.keys(offChainOracles).forEach(chainOracle => oracle.removeOffChainOracle(chainOracle));
+
+    const gas = await oracle.gasPrices();
+
+    checkDecimals(gas);
   });
 });
 

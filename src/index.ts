@@ -36,6 +36,8 @@ export class GasPriceOracle {
       Object.assign(this.configuration, options);
     }
 
+    this.configuration.defaultFallbackGasPrices = this.normalize(this.configuration.defaultFallbackGasPrices);
+
     const network = NETWORKS[this.configuration.chainId];
 
     if (network) {
@@ -225,38 +227,37 @@ export class GasPriceOracle {
           : await this.fetchGasPricesOffChain();
         return this.lastGasPrice;
       } catch (e) {
-        console.log('Failed to fetch gas prices from offchain oracles. Trying onchain ones...');
+        console.log('Failed to fetch gas prices from offchain oracles...');
       }
     }
 
     if (Object.keys(this.onChainOracles).length > 0) {
       try {
         const fastGas = await this.fetchGasPricesOnChain();
-        this.lastGasPrice = {
-          instant: fastGas * 1.3,
-          fast: fastGas,
-          standard: fastGas * 0.85,
-          low: fastGas * 0.5,
-        };
+        this.lastGasPrice = this.categorize(fastGas);
         return this.lastGasPrice;
       } catch (e) {
-        console.log('Failed to fetch gas prices from onchain oracles. Trying from default RPC...');
+        console.log('Failed to fetch gas prices from onchain oracles...');
       }
     }
 
     try {
       const fastGas = await this.fetchGasPriceFromRpc();
-      this.lastGasPrice = {
-        instant: fastGas * 1.3,
-        fast: fastGas,
-        standard: fastGas * 0.85,
-        low: fastGas * 0.5,
-      };
+      this.lastGasPrice = this.categorize(fastGas);
       return this.lastGasPrice;
     } catch (e) {
       console.log('Failed to fetch gas prices from default RPC. Last known gas will be returned');
     }
-    return this.lastGasPrice;
+    return this.normalize(this.lastGasPrice);
+  }
+
+  categorize(gasPrice: number): GasPrice {
+    return this.normalize({
+      instant: gasPrice * 1.3,
+      fast: gasPrice,
+      standard: gasPrice * 0.85,
+      low: gasPrice * 0.5,
+    });
   }
 
   addOffChainOracle(oracle: OffChainOracle): void {
