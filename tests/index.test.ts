@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { GasPrice, OffChainOracle } from '../src/types';
-import mockery from 'mockery';
 import chai from 'chai';
+import mockery from 'mockery';
 
+import { ChainId, NETWORKS } from '../src/config';
 import { GasPriceOracle } from '../src/index';
+
+import { GasPrice, OffChainOracle } from '../src/types';
+
 chai.use(require('chai-as-promised'));
 chai.should();
+
 let oracle = new GasPriceOracle();
 let { onChainOracles, offChainOracles } = oracle;
 
@@ -237,25 +241,34 @@ describe('fetchMedianGasPriceOffChain', function () {
 });
 
 describe('askOracle', function () {
-  it('all oracles should answer', async function () {
-    for (const o of Object.values(offChainOracles) as Array<OffChainOracle>) {
-      try {
-        const gas: GasPrice = await oracle.askOracle(o);
+  const chains = Object.keys(NETWORKS).map(id => Number(id));
 
-        gas.instant.should.be.a('number');
-        gas.fast.should.be.a('number');
-        gas.standard.should.be.a('number');
-        gas.low.should.be.a('number');
+  chains.forEach(chainId => {
+    describe(`all ${ChainId[chainId]} oracles should answer`, function () {
+      oracle = new GasPriceOracle({ chainId });
+      ({ offChainOracles } = oracle);
 
-        gas.instant.should.be.at.least(gas.fast); // greater than or equal to the given number.
-        gas.fast.should.be.at.least(gas.standard);
-        gas.standard.should.be.at.least(gas.low);
-        gas.low.should.not.be.equal(0);
-      } catch (e) {
-        console.error(`Failed to get data from ${o.name} oracle`);
-        throw new Error(e);
+      for (const o of Object.values(offChainOracles) as Array<OffChainOracle>) {
+        it(`check ${o.name}`, async function () {
+          try {
+            const gas: GasPrice = await oracle.askOracle(o);
+
+            gas.instant.should.be.a('number');
+            gas.fast.should.be.a('number');
+            gas.standard.should.be.a('number');
+            gas.low.should.be.a('number');
+
+            gas.instant.should.be.at.least(gas.fast); // greater than or equal to the given number.
+            gas.fast.should.be.at.least(gas.standard);
+            gas.standard.should.be.at.least(gas.low);
+            gas.low.should.not.be.equal(0);
+          } catch (e) {
+            console.error(`Failed to get data from ${o.name} oracle`);
+            throw new Error(e);
+          }
+        });
       }
-    }
+    });
   });
 });
 

@@ -1,5 +1,8 @@
 import axios from 'axios';
-import { ChainId, networks } from './config';
+import BigNumber from 'bignumber.js';
+
+import { ChainId, NETWORKS } from './config';
+
 import {
   Config,
   Options,
@@ -10,7 +13,6 @@ import {
   OnChainOracles,
   OffChainOracles,
 } from './types';
-import BigNumber from 'bignumber.js';
 
 const defaultFastGas = 22;
 export class GasPriceOracle {
@@ -34,7 +36,7 @@ export class GasPriceOracle {
       Object.assign(this.configuration, options);
     }
 
-    const network = networks[this.configuration.chainId];
+    const network = NETWORKS[this.configuration.chainId];
 
     if (network) {
       const { offChainOracles, onChainOracles } = network;
@@ -215,26 +217,31 @@ export class GasPriceOracle {
 
   async gasPrices(fallbackGasPrices?: GasPrice, median = true): Promise<GasPrice> {
     this.lastGasPrice = this.lastGasPrice || fallbackGasPrices || this.configuration.defaultFallbackGasPrices;
-    try {
-      this.lastGasPrice = median
-        ? await this.fetchMedianGasPriceOffChain()
-        : await this.fetchGasPricesOffChain();
-      return this.lastGasPrice;
-    } catch (e) {
-      console.log('Failed to fetch gas prices from offchain oracles. Trying onchain ones...');
+
+    if (Object.keys(this.offChainOracles).length > 0) {
+      try {
+        this.lastGasPrice = median
+          ? await this.fetchMedianGasPriceOffChain()
+          : await this.fetchGasPricesOffChain();
+        return this.lastGasPrice;
+      } catch (e) {
+        console.log('Failed to fetch gas prices from offchain oracles. Trying onchain ones...');
+      }
     }
 
-    try {
-      const fastGas = await this.fetchGasPricesOnChain();
-      this.lastGasPrice = {
-        instant: fastGas * 1.3,
-        fast: fastGas,
-        standard: fastGas * 0.85,
-        low: fastGas * 0.5,
-      };
-      return this.lastGasPrice;
-    } catch (e) {
-      console.log('Failed to fetch gas prices from onchain oracles. Trying from default RPC...');
+    if (Object.keys(this.onChainOracles).length > 0) {
+      try {
+        const fastGas = await this.fetchGasPricesOnChain();
+        this.lastGasPrice = {
+          instant: fastGas * 1.3,
+          fast: fastGas,
+          standard: fastGas * 0.85,
+          low: fastGas * 0.5,
+        };
+        return this.lastGasPrice;
+      } catch (e) {
+        console.log('Failed to fetch gas prices from onchain oracles. Trying from default RPC...');
+      }
     }
 
     try {

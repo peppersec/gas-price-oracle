@@ -9,9 +9,8 @@ A library that has a collection of onchain and offchain gas price oracle URLs
 Current offchain list:
 
 - https://ethgasstation.info/json/ethgasAPI.json
-- https://www.etherchain.org/api/gasPriceOracle
-- https://gasprice.poa.network/
-- https://www.gasnow.org/api/v3/gas/price
+- https://etherchain.org/api/gasnow
+- https://blockscout.com/eth/mainnet/api/v1/gas-price-oracle
 
 Current onchain list:
 
@@ -21,19 +20,31 @@ Current onchain list:
 
 Current offchain list:
 
-- https://bscgas.info/
+- https://ztake.org/
 
 ### xDAI Chain
 
 Current offchain list:
 
-- https://www.xdaichain.com/for-developers/developer-resources/gas-price-oracle
+- https://blockscout.com/xdai/mainnet/api/v1/gas-price-oracle
 
 ### Polygon (Matic) Network
 
 Current offchain list:
 
 - https://gasstation-mainnet.matic.network/
+
+### Arbitrum One
+
+Current offchain list:
+
+- https://ztake.org/
+
+### Avalanche Mainnet
+
+Current offchain list:
+
+- https://ztake.org/
 
 ## Installation
 
