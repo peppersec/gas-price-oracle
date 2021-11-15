@@ -13,35 +13,24 @@ const ethgasstation: OffChainOracle = {
 
 const etherchain: OffChainOracle = {
   name: 'etherchain',
-  url: 'https://www.etherchain.org/api/gasPriceOracle',
-  instantPropertyName: 'fastest',
-  fastPropertyName: 'fast',
-  standardPropertyName: 'standard',
-  lowPropertyName: 'safeLow',
-  denominator: 1,
-  additionalDataProperty: null,
-};
-
-const poa: OffChainOracle = {
-  name: 'poa',
-  url: 'https://gasprice.poa.network/',
-  instantPropertyName: 'instant',
-  fastPropertyName: 'fast',
-  standardPropertyName: 'standard',
-  lowPropertyName: 'slow',
-  denominator: 1,
-  additionalDataProperty: null,
-};
-
-const gasNow: OffChainOracle = {
-  name: 'gasNow',
-  url: 'https://www.gasnow.org/api/v3/gas/price?utm_source=gas-price-oracle',
+  url: 'https://etherchain.org/api/gasnow',
   instantPropertyName: 'rapid',
   fastPropertyName: 'fast',
   standardPropertyName: 'standard',
   lowPropertyName: 'slow',
-  denominator: 1e9,
+  denominator: 1,
   additionalDataProperty: 'data',
+};
+
+const blockscout: OffChainOracle = {
+  name: 'blockscout',
+  url: 'https://blockscout.com/eth/mainnet/api/v1/gas-price-oracle',
+  instantPropertyName: 'fast',
+  fastPropertyName: 'average',
+  standardPropertyName: 'slow',
+  lowPropertyName: 'slow',
+  denominator: 1,
+  additionalDataProperty: null,
 };
 
 const anyblock: OffChainOracle = {
@@ -65,8 +54,7 @@ const chainlink: OnChainOracle = {
 export const offChainOracles: OffChainOracles = {
   ethgasstation,
   anyblock,
-  gasNow,
-  poa,
+  blockscout,
   etherchain,
 };
 
