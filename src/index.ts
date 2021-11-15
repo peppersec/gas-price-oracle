@@ -17,8 +17,8 @@ import {
 const defaultFastGas = 22;
 export class GasPriceOracle {
   lastGasPrice: GasPrice;
-  offChainOracles: OffChainOracles;
-  onChainOracles: OnChainOracles;
+  offChainOracles: OffChainOracles = {};
+  onChainOracles: OnChainOracles = {};
   configuration: Config = {
     chainId: ChainId.MAINNET,
     defaultRpc: 'https://api.mycryptoapi.com/eth',
