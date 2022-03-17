@@ -18,31 +18,31 @@ const etherchain: OffChainOracle = {
   fastPropertyName: 'fast',
   standardPropertyName: 'standard',
   lowPropertyName: 'slow',
-  denominator: 1,
+  denominator: 1e9,
   additionalDataProperty: 'data',
 };
 
-const blockscout: OffChainOracle = {
-  name: 'blockscout',
-  url: 'https://blockscout.com/eth/mainnet/api/v1/gas-price-oracle',
-  instantPropertyName: 'fast',
-  fastPropertyName: 'average',
-  standardPropertyName: 'slow',
-  lowPropertyName: 'slow',
-  denominator: 1,
-  additionalDataProperty: null,
-};
+// const blockscout: OffChainOracle = {
+//   name: 'blockscout',
+//   url: 'https://blockscout.com/eth/mainnet/api/v1/gas-price-oracle',
+//   instantPropertyName: 'fast',
+//   fastPropertyName: 'average',
+//   standardPropertyName: 'slow',
+//   lowPropertyName: 'slow',
+//   denominator: 1,
+//   additionalDataProperty: null,
+// };
 
-const anyblock: OffChainOracle = {
-  name: 'anyblock',
-  url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice',
-  instantPropertyName: 'instant',
-  fastPropertyName: 'fast',
-  standardPropertyName: 'standard',
-  lowPropertyName: 'slow',
-  denominator: 1,
-  additionalDataProperty: null,
-};
+// const anyblock: OffChainOracle = {
+//   name: 'anyblock',
+//   url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice',
+//   instantPropertyName: 'instant',
+//   fastPropertyName: 'fast',
+//   standardPropertyName: 'standard',
+//   lowPropertyName: 'slow',
+//   denominator: 1,
+//   additionalDataProperty: null,
+// };
 
 const chainlink: OnChainOracle = {
   name: 'chainlink',
@@ -53,8 +53,8 @@ const chainlink: OnChainOracle = {
 
 export const offChainOracles: OffChainOracles = {
   ethgasstation,
-  anyblock,
-  blockscout,
+  // anyblock,
+  // blockscout,
   etherchain,
 };
 
