@@ -34,12 +34,6 @@ Current offchain list:
 
 - https://gasstation-mainnet.matic.network/
 
-### Arbitrum One
-
-Current offchain list:
-
-- https://ztake.org/
-
 ### Avalanche Mainnet
 
 Current offchain list:

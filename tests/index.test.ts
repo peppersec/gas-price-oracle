@@ -285,12 +285,7 @@ describe('normalize result values', function () {
 
   it('rpc fallback should be normalized', async function () {
     const { GasPriceOracle } = require('../src/index');
-    oracle = new GasPriceOracle({ chainId: ChainId.ARBITRUM, defaultRpc: 'https://arb1.arbitrum.io/rpc' });
-
-    const { onChainOracles, offChainOracles } = oracle;
-
-    Object.keys(onChainOracles).forEach(chainOracle => oracle.removeOnChainOracle(chainOracle));
-    Object.keys(offChainOracles).forEach(chainOracle => oracle.removeOffChainOracle(chainOracle));
+    oracle = new GasPriceOracle({ chainId: 42161, defaultRpc: 'https://arb1.arbitrum.io/rpc' });
 
     const gas = await oracle.gasPrices();
 
