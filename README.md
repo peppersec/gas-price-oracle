@@ -34,12 +34,6 @@ Current offchain list:
 
 - https://gasstation-mainnet.matic.network/
 
-### Avalanche Mainnet
-
-Current offchain list:
-
-- https://ztake.org/
-
 ## Installation
 
 `npm i gas-price-oracle`
