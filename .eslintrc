@@ -1,0 +1,38 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "es6": true,
+    "mocha": true
+  },
+  "plugins": ["prettier", "eslint-plugin-import", "eslint-plugin-node", "eslint-plugin-promise", "@typescript-eslint"],
+  "extends": ["prettier", "eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "project": "./tsconfig.json",
+    "sourceType": "module",
+    "target": "esnext",
+    "module": "commonjs"
+  },
+  "rules": {
+    "node/no-callback-literal": 0,
+    "prettier/prettier": ["error", { "printWidth": 130 }],
+    "jsx-quotes": ["error", "prefer-single"],
+    "@typescript-eslint/restrict-template-expressions": ["warn", { "allowNumber": true }],
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/array-type": 2,
+    "@typescript-eslint/camelcase": 0,
+    "@typescript-eslint/consistent-type-definitions": 0,
+    "@typescript-eslint/no-empty-function": 2,
+    "@typescript-eslint/no-empty-interface": 2,
+    "@typescript-eslint/no-explicit-any": 2,
+    "@typescript-eslint/no-extra-non-null-assertion": 2,
+    "@typescript-eslint/require-await": 2,
+    "@typescript-eslint/no-floating-promises": 0,
+    "@typescript-eslint/strict-boolean-expressions": 0
+  }
+}
