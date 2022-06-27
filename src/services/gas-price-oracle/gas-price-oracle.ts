@@ -8,9 +8,9 @@ import {
   OracleProvider,
 } from './types'
 
-import { bumpOnPercent, toWei } from '@/utils'
 import { ChainId, NETWORKS } from '@/config'
 import { DEFAULT_TIMEOUT } from '@/constants'
+import { bumpOnPercent, fromNumberToHex, toWei } from '@/utils'
 
 import {
   RpcFetcher,
@@ -66,19 +66,19 @@ export class GasPriceOracle implements OracleProvider {
     if (isLegacy) {
       const legacyGasPrice = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
 
-      return { gasPrice: String(toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent))) }
+      return { gasPrice: fromNumberToHex(toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent))) }
     }
 
     try {
       const eipParams = await this.eip1559.estimateFees(fallbackGasPrices?.estimated)
       return {
-        maxFeePerGas: String(toWei(bumpOnPercent(eipParams.maxFeePerGas, bumpPercent))),
-        maxPriorityFeePerGas: String(toWei(bumpOnPercent(eipParams.maxPriorityFeePerGas, bumpPercent))),
+        maxFeePerGas: fromNumberToHex(toWei(bumpOnPercent(eipParams.maxFeePerGas, bumpPercent))),
+        maxPriorityFeePerGas: fromNumberToHex(toWei(bumpOnPercent(eipParams.maxPriorityFeePerGas, bumpPercent))),
       }
     } catch {
       const legacyGasPrice = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
 
-      return { gasPrice: String(toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent))) }
+      return { gasPrice: fromNumberToHex(toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent))) }
     }
   }
 
