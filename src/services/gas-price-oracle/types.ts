@@ -7,11 +7,11 @@ export type GetTxGasParamsInput = GetGasPriceInput & {
 
 export type GetTxGasParamsRes =
   | {
-      gasPrice: number
+      gasPrice: string
     }
   | {
-      maxFeePerGas: number
-      maxPriorityFeePerGas: number
+      maxFeePerGas: string
+      maxPriorityFeePerGas: string
     }
 
 export type GetGasPriceInput = {

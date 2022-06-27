@@ -66,19 +66,19 @@ export class GasPriceOracle implements OracleProvider {
     if (isLegacy) {
       const legacyGasPrice = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
 
-      return { gasPrice: toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent)) }
+      return { gasPrice: String(toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent))) }
     }
 
     try {
       const eipParams = await this.eip1559.estimateFees(fallbackGasPrices?.estimated)
       return {
-        maxFeePerGas: toWei(bumpOnPercent(eipParams.maxFeePerGas, bumpPercent)),
-        maxPriorityFeePerGas: toWei(bumpOnPercent(eipParams.maxPriorityFeePerGas, bumpPercent)),
+        maxFeePerGas: String(toWei(bumpOnPercent(eipParams.maxFeePerGas, bumpPercent))),
+        maxPriorityFeePerGas: String(toWei(bumpOnPercent(eipParams.maxPriorityFeePerGas, bumpPercent))),
       }
     } catch {
       const legacyGasPrice = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
 
-      return { gasPrice: toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent)) }
+      return { gasPrice: String(toWei(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent))) }
     }
   }
 
