@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es5",
     "module": "commonjs",
-    "lib": ["es2017", "esnext.asynciterable", "es2019", "ES2020.Promise"],
     "moduleResolution": "node",
-    "importHelpers": true,
+    "lib": ["es5", "es6", "es2021", "esnext"],
     "experimentalDecorators": true,
     "sourceMap": true,
-    "outDir": "./lib",
+    "outDir": "lib",
     "noImplicitAny": true,
     "allowJs": true,
     "declaration": true,
@@ -25,7 +24,6 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./src/*"],
       "@/*": ["./src/*"]
     },
     "types": ["@types/node"]
