@@ -48,7 +48,7 @@ export class GasPriceOracle implements OracleProvider {
     })
   }
 
-  public async gasPrices(payload: GetGasPriceInput): Promise<GasPrice | EstimatedGasPrice> {
+  public async gasPrices(payload: GetGasPriceInput = {}): Promise<GasPrice | EstimatedGasPrice> {
     const { fallbackGasPrices, shouldGetMedian, isLegacy = false } = payload
     if (isLegacy) {
       return await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
@@ -60,7 +60,7 @@ export class GasPriceOracle implements OracleProvider {
     }
   }
 
-  public async getTxGasParams(payload: GetTxGasParamsInput): Promise<GetTxGasParamsRes> {
+  public async getTxGasParams(payload: GetTxGasParamsInput = {}): Promise<GetTxGasParamsRes> {
     const { fallbackGasPrices, shouldGetMedian, isLegacy = false, bumpPercent = 0, legacySpeed = 'fast' } = payload
 
     if (isLegacy) {
@@ -82,7 +82,7 @@ export class GasPriceOracle implements OracleProvider {
     }
   }
 
-  public async gasPricesWithEstimate(payload: GasPricesWithEstimateInput): Promise<GasPriceWithEstimate> {
+  public async gasPricesWithEstimate(payload: GasPricesWithEstimateInput = {}): Promise<GasPriceWithEstimate> {
     const { fallbackGasPrices, shouldGetMedian } = payload
 
     const estimate = await this.eip1559.estimateFees(fallbackGasPrices?.estimated)
