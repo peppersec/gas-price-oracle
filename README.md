@@ -1,6 +1,6 @@
 # Gas Price Oracle library for Ethereum dApps [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/peppersec/gas-price-oracle/Node.js%20CI)](https://github.com/peppersec/gas-price-oracle/actions) [![npm](https://img.shields.io/npm/v/gas-price-oracle)](https://www.npmjs.com/package/gas-price-oracle)
 
-A library that has a collection of onchain and offchain gas price oracle URLs
+This is a library with a collection of onchain and offchain gas price oracle URLs
 
 ## Supported networks
 
@@ -214,7 +214,7 @@ oracle.gasPrices({ fallbackGasPrices, shouldGetMedian: true }).then((gasPrices: 
 })
 ```
 
-The `gasPrices` method also accepts `isLegacy` argument (`false`) by default. If `isLegacy: true` - `legacy gasPrice` will be returned. If the `estimate Gas` crash `legacy gas Price` will be returned.
+The `gasPrices` method also accepts `isLegacy` argument (`false`) by default. If `isLegacy: true` - `legacy gasPrice` will be provided. If the `estimate Gas` crashes, `legacy gas Price` will be provided.
 
 ### Get transaction gasPrice params
 
@@ -239,10 +239,7 @@ type GetTxGasParamsRes =
     }
 
 const gasParams: GetTxGasParamsRes = await oracle.getTxGasParams({ legacySpeed: 'fast', bumpPercent: 30 })
-console.log(gasParams)
-// { maxFeePerGas: 17_000_000_000, maxPriorityFeePerGas: 3_000_000_000 } (values in WEI)
-// ||
-// { gasPrice: 19_000_000_000 } values in WEI
+console.log(gasParams) // { maxFeePerGas: 17, maxPriorityFeePerGas: 3 } || { gasPrice: 19 }
 
 web3.eth.sendTransaction({
   from: '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8',
@@ -254,8 +251,8 @@ web3.eth.sendTransaction({
 })
 ```
 
-`bumpPercent` argument (`0` by default) - response data will be increase on `bumpPercent`%.
-`legacySpeed` argument (`fast` by default) - chooser og the speed of legacy gasPrice.
+`bumpPercent` argument (`0` by default) - response data will increase by `bumpPercent`%.
+`legacySpeed` argument (`fast` by default) - select the speed of legacy gasPrice.
 
 ### Offchain oracles only
 
@@ -278,7 +275,7 @@ oracle.legacy.fetchMedianGasPriceOffChain().then((gasPrices: GasPrice) => {
 })
 ```
 
-it returns the median gas price of all the oracles configured.
+This command provides the median gas price of all configured oracles.
 
 ### Custom RPC URL for onchain oracles
 
@@ -291,7 +288,7 @@ oracle.legacy.fetchGasPricesOnChain().then((gasPrices: number) => {
 })
 ```
 
-For get gasPrices from chain that is not in the application's list of chain (Binance, Gnosis, Polygon, Avalanche) Should provide the rpcUrl to initial GasPriceOracle options\_
+To get gasPrices from a chain outside of the application's chain list (Binance, Gnosis, Polygon, Avalanche), you should enter the rpcUrl into initial GasPriceOracle options\_
 
 ```typescript
 const defaultRpc = 'https://rpc.goerli.mudit.blog/' // goerli public rpcUrl
