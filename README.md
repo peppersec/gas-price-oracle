@@ -1,6 +1,6 @@
 # Gas Price Oracle library for Ethereum dApps [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/peppersec/gas-price-oracle/Node.js%20CI)](https://github.com/peppersec/gas-price-oracle/actions) [![npm](https://img.shields.io/npm/v/gas-price-oracle)](https://www.npmjs.com/package/gas-price-oracle)
 
-A library that has a collection of onchain and offchain gas price oracle URLs
+A library with a collection of onchain and offchain gas price oracle URLs
 
 ## Supported networks
 
@@ -86,7 +86,7 @@ oracle.fetchGasPricesOffChain().then(gasPrices => {
 });
 ```
 
-### Offchain oracles only (get median price)
+### Offchain oracles only (for median price)
 
 ```js
 const oracle = new GasPriceOracle();
@@ -96,7 +96,7 @@ oracle.fetchMedianGasPriceOffChain().then(gasPrices => {
 });
 ```
 
-it returns the median gas price of all the oracles configured.
+Provides the median gas price from all configured oracles.
 
 ### Custom RPC URL for onchain oracles
 
