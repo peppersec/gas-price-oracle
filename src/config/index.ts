@@ -45,7 +45,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
   },
   [ChainId.POLYGON]: {
     oracles: polygonOracles,
-    rpcUrl: 'https://polygon-rpc.com',
+    rpcUrl: 'https://rpc-mainnet.maticvigil.com',
     defaultGasPrice: 75,
     maxGasPrice: 1000,
     blocksCount: 10,
