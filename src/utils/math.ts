@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import { BG_ZERO, GWEI, PERCENT_MULTIPLIER } from '@/constants'
+import { BG_ZERO, PERCENT_MULTIPLIER } from '@/constants'
 
 import { toGwei } from './crypto'
 
@@ -26,7 +26,7 @@ const findMax = (values: BigNumber[]): FindMaxRes => {
   )
 }
 
-const getMedian = <T>(arr: T[]) => {
+const getMedian = <T>(arr: T[]): number => {
   return Math.floor(arr.length / 2)
 }
 
@@ -42,8 +42,4 @@ const bumpOnPercent = (value: number, bumpPercent: number): number => {
   return value + (value * bumpPercent) / PERCENT_MULTIPLIER
 }
 
-const toWei = (value: number): number => {
-  return new BigNumber(value).multipliedBy(GWEI).decimalPlaces(0).toNumber()
-}
-
-export { toWei, findMax, getMedian, round, roundGwei, bumpOnPercent }
+export { findMax, getMedian, round, roundGwei, bumpOnPercent }
