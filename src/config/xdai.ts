@@ -1,4 +1,4 @@
-import { OffChainOracle, OffChainOracles, OnChainOracles } from '../types';
+import { OffChainOracle, OffChainOracles, OnChainOracles } from '@/services'
 
 const blockscout: OffChainOracle = {
   name: 'blockscout',
@@ -9,15 +9,15 @@ const blockscout: OffChainOracle = {
   lowPropertyName: 'slow',
   denominator: 1,
   additionalDataProperty: null,
-};
+}
 
 export const offChainOracles: OffChainOracles = {
   blockscout,
-};
+}
 
-export const onChainOracles: OnChainOracles = {};
+export const onChainOracles: OnChainOracles = {}
 
 export default {
   offChainOracles,
   onChainOracles,
-};
+}

@@ -1,4 +1,4 @@
-import { OffChainOracle, OffChainOracles, OnChainOracles } from '../types';
+import { OffChainOracle, OffChainOracles, OnChainOracles } from '@/services'
 
 const maticGasStation: OffChainOracle = {
   name: 'maticGasStation',
@@ -9,15 +9,15 @@ const maticGasStation: OffChainOracle = {
   lowPropertyName: 'safeLow',
   denominator: 1,
   additionalDataProperty: null,
-};
+}
 
 export const offChainOracles: OffChainOracles = {
   maticGasStation,
-};
+}
 
-export const onChainOracles: OnChainOracles = {};
+export const onChainOracles: OnChainOracles = {}
 
 export default {
   offChainOracles,
   onChainOracles,
-};
+}

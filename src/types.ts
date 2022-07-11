@@ -1,46 +1,40 @@
-export type OffChainOracle = {
-  name: string;
-  url: string;
-  instantPropertyName: string;
-  fastPropertyName: string;
-  standardPropertyName: string;
-  lowPropertyName: string;
-  denominator: number;
-  additionalDataProperty: string | null;
-};
+import { AllOracles } from './services/legacy-gas-price'
 
-export type OffChainOracles = { [key: string]: OffChainOracle };
+export interface Block {
+  baseFeePerGas: string
+  difficulty: string
+  extraData: string
+  gasLimit: string
+  gasUsed: string
+  hash: string
+  miner: string
+  mixHash: string
+  nonce: string
+  number: string
+  parentHash: string
+  receiptsRoot: string
+  sha3Uncles: string
+  size: string
+  stateRoot: string
+  timestamp: string
+  totalDifficulty: string
+  transactions: unknown[]
+  transactionsRoot: string
+  uncles: unknown[]
+}
 
-export type OnChainOracle = {
-  name: string;
-  rpc?: string;
-  contract: string;
-  callData: string;
-  denominator: string;
-};
+export interface FeeHistory {
+  baseFeePerGas: string[]
+  gasUsedRatio: number[]
+  reward?: string[][]
+  oldestBlock: string
+}
 
-export type OnChainOracles = { [key: string]: OnChainOracle };
-
-export type AllOracles = {
-  offChainOracles: OffChainOracles;
-  onChainOracles: OnChainOracles;
-};
-
-export type GasPrice = {
-  [key in GasPriceKey]: number;
-};
-
-export type GasPriceKey = 'instant' | 'fast' | 'standard' | 'low';
-
-export type Options = {
-  chainId?: number;
-  defaultRpc?: string;
-  timeout?: number;
-  defaultFallbackGasPrices?: GasPrice;
-};
-
-export type Config = Required<Options>;
-
-export type NetworkConfig = {
-  [key in number]: AllOracles;
-};
+export type NetworksConfig = {
+  oracles: AllOracles
+  rpcUrl: string
+  defaultGasPrice: number
+  maxGasPrice: number
+  blocksCount: number
+  percentile: number
+}
