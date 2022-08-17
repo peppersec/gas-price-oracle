@@ -36,6 +36,8 @@ export type GasOracleOptions = {
   defaultRpc?: string
   blocksCount?: number
   percentile?: number
+  blockTime?: number
+  shouldCache?: boolean
   fallbackGasPrices?: FallbackGasPrices
 }
 

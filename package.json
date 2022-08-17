@@ -1,6 +1,6 @@
 {
   "name": "gas-price-oracle",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Gas Price Oracle library for Ethereum dApps.",
   "homepage": "https://github.com/peppersec/gas-price-oracle",
   "main": "./lib/index.js",
@@ -57,7 +57,8 @@
   },
   "dependencies": {
     "axios": "^0.21.2",
-    "bignumber.js": "^9.0.0"
+    "bignumber.js": "^9.0.0",
+    "node-cache": "^5.1.2"
   },
   "files": [
     "lib/**/*"

@@ -3,22 +3,27 @@ import BigNumber from 'bignumber.js'
 import { FeeHistory, Block } from '@/types'
 import { Config, EstimateOracle, EstimatedGasPrice, CalculateFeesParams, GasEstimationOptionsPayload } from './types'
 
-import { RpcFetcher } from '@/services'
 import { ChainId, NETWORKS } from '@/config'
-import { BG_ZERO, PERCENT_MULTIPLIER } from '@/constants'
+import { RpcFetcher, NodeJSCache } from '@/services'
 import { findMax, fromNumberToHex, fromWeiToGwei, getMedian } from '@/utils'
+import { BG_ZERO, DEFAULT_BLOCK_DURATION, PERCENT_MULTIPLIER } from '@/constants'
 
 import { DEFAULT_PRIORITY_FEE, PRIORITY_FEE_INCREASE_BOUNDARY, FEE_HISTORY_BLOCKS, FEE_HISTORY_PERCENTILE } from './constants'
 
 // !!! MAKE SENSE ALL CALCULATIONS IN GWEI !!!
 export class Eip1559GasPriceOracle implements EstimateOracle {
   public configuration: Config = {
+    shouldCache: false,
     chainId: ChainId.MAINNET,
+    fallbackGasPrices: undefined,
+    blockTime: DEFAULT_BLOCK_DURATION,
     blocksCount: NETWORKS[ChainId.MAINNET].blocksCount,
     percentile: NETWORKS[ChainId.MAINNET].percentile,
-    fallbackGasPrices: undefined,
   }
   private fetcher: RpcFetcher
+
+  private cache: NodeJSCache<EstimatedGasPrice>
+  private FEES_KEY = (chainId: ChainId) => `estimate-fee-${chainId}`
 
   constructor({ fetcher, ...options }: GasEstimationOptionsPayload) {
     this.fetcher = fetcher
@@ -29,10 +34,19 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
     if (options) {
       this.configuration = { ...this.configuration, ...options }
     }
+
+    this.cache = new NodeJSCache({ stdTTL: this.configuration.blockTime, useClones: false })
   }
 
   public async estimateFees(fallbackGasPrices?: EstimatedGasPrice): Promise<EstimatedGasPrice> {
     try {
+      const cacheKey = this.FEES_KEY(this.configuration.chainId)
+      const cachedFees = await this.cache.get(cacheKey)
+
+      if (cachedFees) {
+        return cachedFees
+      }
+
       const { data: latestBlock } = await this.fetcher.makeRpcCall<{ result: Block }>({
         method: 'eth_getBlockByNumber',
         params: ['latest', false],
@@ -52,7 +66,12 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
         params: [blockCount, 'latest', rewardPercentiles],
       })
 
-      return this.calculateFees({ baseFee, feeHistory: data.result })
+      const fees = await this.calculateFees({ baseFee, feeHistory: data.result })
+      if (this.configuration.shouldCache) {
+        await this.cache.set(cacheKey, fees)
+      }
+
+      return fees
     } catch (err) {
       if (fallbackGasPrices) {
         return fallbackGasPrices

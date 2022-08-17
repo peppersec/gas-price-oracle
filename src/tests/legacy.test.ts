@@ -8,6 +8,7 @@ import mockery from 'mockery'
 import BigNumber from 'bignumber.js'
 import { before, describe } from 'mocha'
 
+import { sleep } from '@/utils'
 import { ChainId, NETWORKS } from '@/config'
 import { DEFAULT_TIMEOUT } from '@/constants'
 import { GasPriceOracle } from '@/services/gas-price-oracle'
@@ -77,6 +78,7 @@ describe('legacy gasOracle', function () {
       mockery.enable({ useCleanCache: true, warnOnUnregistered: false })
       const { GasPriceOracle } = require('../index')
       oracle = new GasPriceOracle()
+      // @ts-ignore
       await oracle.legacy.fetchGasPricesOffChain(true).should.be.rejectedWith('All oracles are down. Probably a network error.')
       mockery.disable()
     })
@@ -105,6 +107,7 @@ describe('legacy gasOracle', function () {
     it('should remove oracle', async function () {
       await oracle.legacy.fetchGasPricesOnChain()
       oracle.legacy.removeOnChainOracle('chainlink')
+      // @ts-ignore
       await oracle.legacy.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probably a network error.')
     })
 
@@ -113,6 +116,7 @@ describe('legacy gasOracle', function () {
       await oracle.legacy.fetchGasPricesOnChain()
       oracle.legacy.removeOnChainOracle('chainlink')
 
+      // @ts-ignore
       await oracle.legacy.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probably a network error.')
 
       oracle.legacy.addOnChainOracle(toAdd)
@@ -127,6 +131,7 @@ describe('legacy gasOracle', function () {
       const { GasPriceOracle } = require('../index')
 
       oracle = new GasPriceOracle()
+      // @ts-ignore
       await oracle.legacy.fetchGasPricesOnChain().should.be.rejectedWith('All oracles are down. Probably a network error.')
       mockery.disable()
     })
@@ -157,6 +162,7 @@ describe('legacy gasOracle', function () {
       const { GasPriceOracle } = require('../index')
 
       oracle = new GasPriceOracle()
+      // @ts-ignore
       await oracle.legacy.fetchGasPriceFromRpc().should.be.rejectedWith('Default RPC is down. Probably a network error.')
       mockery.disable()
     })
@@ -216,6 +222,25 @@ describe('legacy gasOracle', function () {
       gas.low.should.be.equal(fallbackGasPrices.gasPrices.low)
 
       mockery.disable()
+    })
+
+    it('should cache', async function () {
+      const oracle = new GasPriceOracle({ shouldCache: true })
+      const gasPricesFirst = await oracle.legacy.gasPrices()
+
+      await sleep(2000)
+      const gasPricesSecond = await oracle.legacy.gasPrices()
+
+      if (gasPricesFirst.fast) {
+        gasPricesFirst.fast.should.be.at.equal(gasPricesSecond?.fast)
+      }
+
+      await sleep(4000)
+      const gasPricesThird = await oracle.legacy.gasPrices()
+
+      if (gasPricesSecond.fast) {
+        gasPricesSecond.fast.should.be.at.equal(gasPricesThird?.fast)
+      }
     })
   })
 

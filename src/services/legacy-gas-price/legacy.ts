@@ -14,9 +14,9 @@ import {
   GetGasPriceFromRespInput,
 } from './types'
 
-import { RpcFetcher } from '@/services'
 import { ChainId, NETWORKS } from '@/config'
-import { GWEI, DEFAULT_TIMEOUT, GWEI_PRECISION } from '@/constants'
+import { RpcFetcher, NodeJSCache } from '@/services'
+import { GWEI, DEFAULT_TIMEOUT, GWEI_PRECISION, DEFAULT_BLOCK_DURATION } from '@/constants'
 
 import { MULTIPLIERS, DEFAULT_GAS_PRICE } from './constants'
 
@@ -95,13 +95,18 @@ export class LegacyGasPriceOracle implements LegacyOracle {
   public onChainOracles: OnChainOracles = {}
   public offChainOracles: OffChainOracles = {}
   public configuration: Required<LegacyOptions> = {
+    shouldCache: false,
     chainId: ChainId.MAINNET,
     timeout: DEFAULT_TIMEOUT,
+    blockTime: DEFAULT_BLOCK_DURATION,
     defaultRpc: NETWORKS[ChainId.MAINNET].rpcUrl,
     fallbackGasPrices: LegacyGasPriceOracle.getMultipliedPrices(NETWORKS[ChainId.MAINNET].defaultGasPrice),
   }
 
   private readonly fetcher: RpcFetcher
+
+  private cache: NodeJSCache<GasPrice>
+  private LEGACY_KEY = (chainId: ChainId) => `legacy-fee-${chainId}`
 
   constructor({ fetcher, ...options }: LegacyOptionsPayload) {
     this.fetcher = fetcher
@@ -109,8 +114,8 @@ export class LegacyGasPriceOracle implements LegacyOracle {
       this.configuration = { ...this.configuration, ...options }
     }
 
-    const fallbackGasPrices =
-      this.configuration.fallbackGasPrices || LegacyGasPriceOracle.getMultipliedPrices(NETWORKS[ChainId.MAINNET].defaultGasPrice)
+    const { defaultGasPrice } = NETWORKS[ChainId.MAINNET]
+    const fallbackGasPrices = this.configuration.fallbackGasPrices || LegacyGasPriceOracle.getMultipliedPrices(defaultGasPrice)
     this.configuration.fallbackGasPrices = LegacyGasPriceOracle.normalize(fallbackGasPrices)
 
     const network = NETWORKS[this.configuration.chainId]?.oracles
@@ -118,6 +123,8 @@ export class LegacyGasPriceOracle implements LegacyOracle {
       this.offChainOracles = { ...network.offChainOracles }
       this.onChainOracles = { ...network.onChainOracles }
     }
+
+    this.cache = new NodeJSCache({ stdTTL: this.configuration.blockTime, useClones: false })
   }
 
   public addOffChainOracle(oracle: OffChainOracle): void {
@@ -228,9 +235,19 @@ export class LegacyGasPriceOracle implements LegacyOracle {
       this.lastGasPrice = fallbackGasPrices || this.configuration.fallbackGasPrices
     }
 
+    const cacheKey = this.LEGACY_KEY(this.configuration.chainId)
+    const cachedFees = await this.cache.get(cacheKey)
+
+    if (cachedFees) {
+      return cachedFees
+    }
+
     if (Object.keys(this.offChainOracles).length > 0) {
       try {
         this.lastGasPrice = await this.fetchGasPricesOffChain(shouldGetMedian)
+        if (this.configuration.shouldCache) {
+          await this.cache.set(cacheKey, this.lastGasPrice)
+        }
         return this.lastGasPrice
       } catch (e) {
         console.error('Failed to fetch gas prices from offchain oracles...')
@@ -240,7 +257,11 @@ export class LegacyGasPriceOracle implements LegacyOracle {
     if (Object.keys(this.onChainOracles).length > 0) {
       try {
         const fastGas = await this.fetchGasPricesOnChain()
+
         this.lastGasPrice = LegacyGasPriceOracle.getCategorize(fastGas)
+        if (this.configuration.shouldCache) {
+          await this.cache.set(cacheKey, this.lastGasPrice)
+        }
         return this.lastGasPrice
       } catch (e) {
         console.error('Failed to fetch gas prices from onchain oracles...')
@@ -249,7 +270,11 @@ export class LegacyGasPriceOracle implements LegacyOracle {
 
     try {
       const fastGas = await this.fetchGasPriceFromRpc()
+
       this.lastGasPrice = LegacyGasPriceOracle.getCategorize(fastGas)
+      if (this.configuration.shouldCache) {
+        await this.cache.set(cacheKey, this.lastGasPrice)
+      }
       return this.lastGasPrice
     } catch (e) {
       console.error('Failed to fetch gas prices from default RPC. Last known gas will be returned')

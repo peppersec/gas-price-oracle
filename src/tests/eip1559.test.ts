@@ -10,6 +10,7 @@ import chaiAsPromised from 'chai-as-promised'
 import mockery from 'mockery'
 import { before, describe } from 'mocha'
 
+import { sleep } from '@/utils'
 import { ChainId, NETWORKS } from '@/config'
 import { GWEI_PRECISION } from '@/constants'
 
@@ -120,6 +121,24 @@ describe('eip-1559 gasOracle', function () {
             .toNumber()
           estimateGas.maxFeePerGas.should.be.at.least(estimateGas.baseFee)
           estimateGas.maxFeePerGas.should.be.at.equal(estimatedMaxFee)
+        }
+      })
+      it('should cache', async function () {
+        eipOracle = new GasPriceOracle({ shouldCache: true, chainId })
+        const estimateGasFirst: EstimatedGasPrice = await eipOracle.eip1559.estimateFees()
+
+        await sleep(2000)
+        const estimateGasSecond: EstimatedGasPrice = await eipOracle.eip1559.estimateFees()
+
+        if (estimateGasFirst?.maxFeePerGas) {
+          estimateGasFirst.maxFeePerGas.should.be.at.equal(estimateGasSecond?.maxFeePerGas)
+        }
+
+        await sleep(4000)
+        const estimateGasThird: EstimatedGasPrice = await eipOracle.eip1559.estimateFees()
+
+        if (estimateGasSecond?.maxFeePerGas) {
+          estimateGasSecond.maxFeePerGas.should.be.at.equal(estimateGasThird?.maxFeePerGas)
         }
       })
     })

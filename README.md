@@ -77,6 +77,8 @@ type GasOracleOptions = {
   defaultRpc?: string
   blocksCount?: number
   percentile?: number
+  blockTime?: number // seconds
+  shouldCache?: boolean
   fallbackGasPrices?: FallbackGasPrices
 }
 
@@ -85,6 +87,8 @@ const options: GasOracleOptions = {
   percentile: 5, // Which percentile of effective priority fees to include
   blocksCount: 10, // How many blocks to consider for priority fee estimation
   defaultRpc: 'https://api.mycryptoapi.com/eth',
+  blockTime: 10, // seconds
+  shouldCache: false,
   timeout: 10000, // specifies the number of milliseconds before the request times out.
   fallbackGasPrices: {
     gasPrices: {
@@ -100,6 +104,14 @@ const options: GasOracleOptions = {
   },
 }
 ```
+
+### The Oracle can cache rpc calls
+
+For caching needs to provide to GasOracleOptions
+
+`shouldCache: true`
+
+`blockTime: <Chain block time duration>`
 
 ### EIP-1559 (estimated) gasPrice only
 
