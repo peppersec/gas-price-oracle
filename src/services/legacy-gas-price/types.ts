@@ -36,7 +36,9 @@ export type GasPrice = Record<GasPriceKey, number>
 export type LegacyOptions = {
   chainId?: number
   timeout?: number
+  blockTime?: number
   defaultRpc?: string
+  shouldCache?: boolean
   fallbackGasPrices?: GasPrice
 }
 

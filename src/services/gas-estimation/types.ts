@@ -23,6 +23,8 @@ export type Options = {
   chainId?: number
   blocksCount?: number
   percentile?: number
+  blockTime?: number
+  shouldCache?: boolean
   fallbackGasPrices: EstimatedGasPrice | undefined
 }
 
