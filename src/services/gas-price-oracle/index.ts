@@ -1,2 +1,2 @@
-export * from './gas-price-oracle'
-export * from './types'
+export * from '@/services/gas-price-oracle/gas-price-oracle'
+export * from '@/services/gas-price-oracle/types'

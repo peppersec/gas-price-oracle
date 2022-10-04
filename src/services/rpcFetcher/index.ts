@@ -1,2 +1,2 @@
-export * from './fetcher'
-export * from './types'
+export * from '@/services/rpcFetcher/fetcher'
+export * from '@/services/rpcFetcher/types'

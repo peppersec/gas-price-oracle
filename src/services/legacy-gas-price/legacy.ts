@@ -12,13 +12,13 @@ import {
   OffChainOracles,
   LegacyOptionsPayload,
   GetGasPriceFromRespInput,
-} from './types'
+} from '@/services/legacy-gas-price/types'
 
 import { ChainId, NETWORKS } from '@/config'
 import { RpcFetcher, NodeJSCache } from '@/services'
 import { GWEI, DEFAULT_TIMEOUT, GWEI_PRECISION, DEFAULT_BLOCK_DURATION } from '@/constants'
 
-import { MULTIPLIERS, DEFAULT_GAS_PRICE } from './constants'
+import { MULTIPLIERS, DEFAULT_GAS_PRICE } from '@/services/legacy-gas-price/constants'
 
 export class LegacyGasPriceOracle implements LegacyOracle {
   static getMedianGasPrice(gasPrices: GasPrice[]): GasPrice {

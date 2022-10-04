@@ -1,14 +1,25 @@
 import BigNumber from 'bignumber.js'
 
 import { FeeHistory, Block } from '@/types'
-import { Config, EstimateOracle, EstimatedGasPrice, CalculateFeesParams, GasEstimationOptionsPayload } from './types'
+import {
+  Config,
+  EstimateOracle,
+  EstimatedGasPrice,
+  CalculateFeesParams,
+  GasEstimationOptionsPayload,
+} from '@/services/gas-estimation/types'
 
 import { ChainId, NETWORKS } from '@/config'
 import { RpcFetcher, NodeJSCache } from '@/services'
 import { findMax, fromNumberToHex, fromWeiToGwei, getMedian } from '@/utils'
 import { BG_ZERO, DEFAULT_BLOCK_DURATION, PERCENT_MULTIPLIER } from '@/constants'
 
-import { DEFAULT_PRIORITY_FEE, PRIORITY_FEE_INCREASE_BOUNDARY, FEE_HISTORY_BLOCKS, FEE_HISTORY_PERCENTILE } from './constants'
+import {
+  DEFAULT_PRIORITY_FEE,
+  PRIORITY_FEE_INCREASE_BOUNDARY,
+  FEE_HISTORY_BLOCKS,
+  FEE_HISTORY_PERCENTILE,
+} from '@/services/gas-estimation/constants'
 
 // !!! MAKE SENSE ALL CALCULATIONS IN GWEI !!!
 export class Eip1559GasPriceOracle implements EstimateOracle {
@@ -24,6 +35,7 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
 
   private cache: NodeJSCache<EstimatedGasPrice>
   private FEES_KEY = (chainId: ChainId) => `estimate-fee-${chainId}`
+  private FEES_PER_SPEED_KEY = (chainId: ChainId) => `estimate-fee-${chainId}`
 
   constructor({ fetcher, ...options }: GasEstimationOptionsPayload) {
     this.fetcher = fetcher
@@ -152,5 +164,62 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
 
   private checkIsGreaterThanMax(value: BigNumber): boolean {
     return value.isGreaterThanOrEqualTo(NETWORKS[this.configuration.chainId]?.maxGasPrice) || false
+  }
+
+  public async estimateFeesPerSpeed(): Promise<any> {
+    try {
+      const cacheKey = this.FEES_PER_SPEED_KEY(this.configuration.chainId)
+      const cachedFees = await this.cache.get(cacheKey)
+
+      if (cachedFees) {
+        return cachedFees
+      }
+
+      const { data: latestBlock } = await this.fetcher.makeRpcCall<{ result: Block }>({
+        method: 'eth_getBlockByNumber',
+        params: ['latest', false],
+      })
+
+      if (!latestBlock.result.baseFeePerGas) {
+        throw new Error('An error occurred while fetching current base fee, falling back')
+      }
+
+      const baseFee = fromWeiToGwei(latestBlock.result.baseFeePerGas)
+
+      const blockCount = fromNumberToHex(this.configuration.blocksCount)
+      const rewardPercentiles: number[] = [this.configuration.percentile]
+
+      const { data } = await this.fetcher.makeRpcCall<{ result: FeeHistory }>({
+        method: 'eth_feeHistory',
+        params: [blockCount, 'latest', rewardPercentiles],
+      })
+      const fees = await this.calculateFees({ baseFee, feeHistory: data.result })
+      if (this.configuration.shouldCache) {
+        await this.cache.set(cacheKey, fees)
+      }
+
+      return fees
+    } catch (err) {
+      if (fallbackGasPrices) {
+        return fallbackGasPrices
+      }
+      if (this.configuration.fallbackGasPrices) {
+        return this.configuration.fallbackGasPrices
+      }
+      throw err
+    }
+  }
+
+  private calculateFeesPerSpeed({ baseFee, feeHistory }: CalculateFeesParams): Promise<any> {
+    if (
+      feeHistory &&
+      feeHistory.baseFeePerGas !== undefined &&
+      feeHistory.baseFeePerGas.length > 0 &&
+      feeHistory.gasUsedRatio.length > 0 &&
+      (feeHistory.reward === undefined || feeHistory.reward.length > 0)
+    ) {
+    }
+
+    return
   }
 }

@@ -6,7 +6,8 @@ import {
   GetTxGasParamsInput,
   GetTxGasParamsRes,
   OracleProvider,
-} from './types'
+  GasPricesEip1559Res,
+} from '@/services/gas-price-oracle/types'
 
 import { ChainId, NETWORKS } from '@/config'
 import { DEFAULT_TIMEOUT } from '@/constants'
@@ -93,4 +94,6 @@ export class GasPriceOracle implements OracleProvider {
       gasPrices,
     }
   }
+
+  public async gasPricesEip1559PerSpeed(payload): Promise<GasPricesEip1559Res> {}
 }

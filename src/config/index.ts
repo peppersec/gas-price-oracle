@@ -1,10 +1,10 @@
-import bscOracles from './bsc'
-import xdaiOracles from './xdai'
-import avalancheOracles from './avax'
-import mainnetOracles from './mainnet'
-import polygonOracles from './polygon'
-import optimismOracles from './optimism'
-import arbitrumOracles from './arbitrum'
+import bscOracles from '@/config/bsc'
+import xdaiOracles from '@/config/xdai'
+import avalancheOracles from '@/config/avax'
+import mainnetOracles from '@/config/mainnet'
+import polygonOracles from '@/config/polygon'
+import optimismOracles from '@/config/optimism'
+import arbitrumOracles from '@/config/arbitrum'
 
 import { NetworksConfig } from '@/types'
 

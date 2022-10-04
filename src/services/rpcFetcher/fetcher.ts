@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
-import { MakeRpcCallInput } from './types'
+import { MakeRpcCallInput } from '@/services/rpcFetcher/types'
 
 export class RpcFetcher {
   private readonly rpc: string

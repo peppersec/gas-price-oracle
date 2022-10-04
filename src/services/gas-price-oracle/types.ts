@@ -5,14 +5,16 @@ export type GetTxGasParamsInput = GetGasPriceInput & {
   legacySpeed?: GasPriceKey
 }
 
+export type GasPricesEip1559 = {
+  maxFeePerGas: string
+  maxPriorityFeePerGas: string
+}
+
 export type GetTxGasParamsRes =
   | {
       gasPrice: string
     }
-  | {
-      maxFeePerGas: string
-      maxPriorityFeePerGas: string
-    }
+  | GasPricesEip1559
 
 export type GetGasPriceInput = {
   isLegacy?: boolean
@@ -44,6 +46,13 @@ export type GasOracleOptions = {
 export type GasPriceWithEstimate = {
   gasPrices: GasPrice
   estimate: EstimatedGasPrice
+}
+
+export type GasPricesEip1559Res = {
+  baseFee: string
+  low: GasPricesEip1559
+  medium: GasPricesEip1559
+  high: GasPricesEip1559
 }
 
 export interface OracleProvider {

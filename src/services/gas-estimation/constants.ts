@@ -1,6 +1,6 @@
 // How many blocks to consider for priority fee estimation
 import BigNumber from 'bignumber.js'
-import { EstimatedGasPrice } from './types'
+import { EstimatedGasPrice } from '@/services/gas-estimation/types'
 
 const FEE_HISTORY_BLOCKS = 10
 // Which percentile of effective priority fees to include
