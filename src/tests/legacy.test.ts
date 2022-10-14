@@ -42,7 +42,7 @@ beforeEach('beforeEach', function () {
   ;({ onChainOracles, offChainOracles } = oracle.legacy)
 })
 
-const INJECTED_RPC_URL = 'https://ethereum-rpc.trustwalletapp.com'
+const INJECTED_RPC_URL = 'https://cloudflare-eth.com'
 
 describe('legacy gasOracle', function () {
   describe('legacy constructor', function () {
@@ -191,7 +191,7 @@ describe('legacy gasOracle', function () {
 
       const gas = (await oracle.gasPrices({ isLegacy: true })) as unknown as GasPrice
 
-      const shouldBe = LegacyGasPriceOracle.getMultipliedPrices(NETWORKS[ChainId.MAINNET].defaultGasPrice)
+      const shouldBe = LegacyGasPriceOracle.getCategorize(NETWORKS[ChainId.MAINNET].defaultGasPrice)
 
       gas.instant.should.be.equal(shouldBe.instant)
       gas.fast.should.be.equal(shouldBe.fast)

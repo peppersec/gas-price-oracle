@@ -90,6 +90,7 @@ const options: GasOracleOptions = {
   blockTime: 10, // seconds
   shouldCache: false,
   timeout: 10000, // specifies the number of milliseconds before the request times out.
+  minPriority: 0, // specifies the min maxPriorityFeePerGas.
   fallbackGasPrices: {
     gasPrices: {
       instant: 28,

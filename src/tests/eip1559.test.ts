@@ -33,7 +33,7 @@ beforeEach('beforeEach', function () {
   oracle = new GasPriceOracle()
 })
 
-const INJECTED_RPC_URL = 'https://ethereum-rpc.trustwalletapp.com'
+const INJECTED_RPC_URL = 'https://cloudflare-eth.com'
 describe('eip-1559 gasOracle', function () {
   describe('eip constructor', function () {
     it('should set default values', function () {
@@ -62,14 +62,14 @@ describe('eip-1559 gasOracle', function () {
 
     describe(`estimateGas ${chainId}`, function () {
       it('should return error if not eip-1559 not supported', async function () {
-        if (chainId === ChainId.OPTIMISM || chainId === ChainId.ARBITRUM || chainId === ChainId.BSC) {
+        if (chainId === ChainId.OPTIMISM || chainId === ChainId.BSC) {
           await eipOracle.eip1559
             .estimateFees()
             .should.be.rejectedWith('An error occurred while fetching current base fee, falling back')
         }
       })
 
-      if (chainId === ChainId.OPTIMISM || chainId === ChainId.ARBITRUM || chainId === ChainId.BSC) {
+      if (chainId === ChainId.OPTIMISM || chainId === ChainId.BSC) {
         return
       }
 
@@ -141,6 +141,16 @@ describe('eip-1559 gasOracle', function () {
           estimateGasSecond.maxFeePerGas.should.be.at.equal(estimateGasThird?.maxFeePerGas)
         }
       })
+    })
+  })
+
+  describe('estimate ARBITRUM', function () {
+    it('should be priority 0', async function () {
+      const eipOracle = new GasPriceOracle({ minPriority: 0, chainId: ChainId.ARBITRUM })
+      const estimateGas: EstimatedGasPrice = await eipOracle.eip1559.estimateFees(FALLBACK_ESTIMATE)
+
+      console.log('estimateGas.maxPriorityFeePerGas', estimateGas.maxPriorityFeePerGas)
+      estimateGas.maxPriorityFeePerGas.should.be.at.equal(0)
     })
   })
 })

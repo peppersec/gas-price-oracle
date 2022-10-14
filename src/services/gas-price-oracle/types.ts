@@ -38,6 +38,7 @@ export type GasOracleOptions = {
   percentile?: number
   blockTime?: number
   shouldCache?: boolean
+  minPriority?: number
   fallbackGasPrices?: FallbackGasPrices
 }
 

@@ -16,6 +16,7 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
     shouldCache: false,
     chainId: ChainId.MAINNET,
     fallbackGasPrices: undefined,
+    minPriority: DEFAULT_PRIORITY_FEE,
     blockTime: DEFAULT_BLOCK_DURATION,
     blocksCount: NETWORKS[ChainId.MAINNET].blocksCount,
     percentile: NETWORKS[ChainId.MAINNET].percentile,
@@ -135,8 +136,10 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
   private async calculateFees({ baseFee, feeHistory }: CalculateFeesParams): Promise<EstimatedGasPrice> {
     const estimatedPriorityFee = await this.getPriorityFromChain(feeHistory)
 
-    const { highest: maxPriorityFeePerGas } = findMax([estimatedPriorityFee ?? BG_ZERO, new BigNumber(DEFAULT_PRIORITY_FEE)])
-
+    const { highest: maxPriorityFeePerGas } = findMax([
+      estimatedPriorityFee ?? BG_ZERO,
+      new BigNumber(this.configuration.minPriority),
+    ])
     const maxFeePerGas = baseFee.plus(maxPriorityFeePerGas)
 
     if (this.checkIsGreaterThanMax(maxFeePerGas) || this.checkIsGreaterThanMax(maxPriorityFeePerGas)) {
