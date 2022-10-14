@@ -32,7 +32,7 @@ export type GasEstimationOptionsPayload = Options & {
   fetcher: RpcFetcher
 }
 
-export type Config = Required<Options> & { fallbackGasPrices?: EstimatedGasPrice }
+export type Config = Required<Options> & { fallbackGasPrices?: EstimatedGasPrice; minPriority: number }
 export abstract class EstimateOracle {
   public configuration: Config
   public abstract estimateFees(fallbackGasPrices?: EstimatedGasPrice): Promise<EstimatedGasPrice>
