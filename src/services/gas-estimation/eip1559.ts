@@ -52,6 +52,7 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
     }
 
     this.cache = new NodeJSCache({ stdTTL: this.configuration.blockTime, useClones: false })
+    this.perSpeedCache = new NodeJSCache({ stdTTL: this.configuration.blockTime, useClones: false })
   }
 
   public async estimateFees(fallbackGasPrices?: EstimatedGasPrice): Promise<EstimatedGasPrice> {
@@ -179,6 +180,10 @@ export class Eip1559GasPriceOracle implements EstimateOracle {
     }
 
     const estimates: GasFeeEstimates = await fetchGasEstimatesViaEthFeeHistory(this.fetcher)
+
+    if (this.configuration.shouldCache && estimates) {
+      await this.perSpeedCache.set(cacheKey, estimates)
+    }
 
     // time estimated
     // const { suggestedMaxPriorityFeePerGas, suggestedMaxFeePerGas } = estimates.medium
