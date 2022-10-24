@@ -1,4 +1,5 @@
 import { RpcFetcher, GasPrice, LegacyOracle, EstimatedGasPrice, EstimateOracle, GasPriceKey } from '@/services'
+import { GasFeeEstimates } from '@/services/gas-estimation/types'
 
 export type GetTxGasParamsInput = GetGasPriceInput & {
   bumpPercent?: number
@@ -48,18 +49,13 @@ export type GasPriceWithEstimate = {
   estimate: EstimatedGasPrice
 }
 
-export type GasPricesEip1559Res = {
-  baseFee: string
-  low: GasPricesEip1559
-  medium: GasPricesEip1559
-  high: GasPricesEip1559
-}
-
 export interface OracleProvider {
   eip1559: EstimateOracle
   legacy: LegacyOracle
   fetcher: RpcFetcher
-  gasPrices: (payload: GetGasPriceInput) => Promise<GasPrice | EstimatedGasPrice>
-  gasPricesWithEstimate: (payload: GasPricesWithEstimateInput) => Promise<GasPriceWithEstimate>
-  getTxGasParams: (payload: GetTxGasParamsInput) => Promise<GetTxGasParamsRes>
+  gasPrices: (payload: GetGasPriceInput) => Promise<GasPrice | EstimatedGasPrice | GasFeeEstimates>
+  // gasPricesWithEstimate: (
+  //   payload: GasPricesWithEstimateInput,
+  // ) => Promise<GasPriceWithEstimate | GasPriceBySpeedValuesWithEstimate>
+  // getTxGasParams: (payload: GetTxGasParamsInput) => Promise<GetTxGasParamsRes>
 }

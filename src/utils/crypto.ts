@@ -17,4 +17,8 @@ const fromGweiToWeiHex = (value: number): string => {
   return fromNumberToHex(new BigNumber(value).multipliedBy(GWEI).decimalPlaces(0))
 }
 
-export { toGwei, fromWeiToGwei, fromGweiToWeiHex, fromNumberToHex }
+const fromGweiToWei = (amount: number | string | BigNumber): BigNumber => {
+  return new BigNumber(amount).multipliedBy(GWEI).decimalPlaces(0)
+}
+
+export { toGwei, fromWeiToGwei, fromGweiToWei, fromGweiToWeiHex, fromNumberToHex }

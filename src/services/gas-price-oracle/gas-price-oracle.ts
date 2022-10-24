@@ -1,17 +1,8 @@
-import {
-  GasOracleOptions,
-  GasPricesWithEstimateInput,
-  GasPriceWithEstimate,
-  GetGasPriceInput,
-  GetTxGasParamsInput,
-  GetTxGasParamsRes,
-  OracleProvider,
-  GasPricesEip1559Res,
-} from '@/services/gas-price-oracle/types'
+import { GasOracleOptions, GetGasPriceInput, OracleProvider } from '@/services/gas-price-oracle/types'
 
 import { ChainId, NETWORKS } from '@/config'
 import { DEFAULT_TIMEOUT } from '@/constants'
-import { bumpOnPercent, fromGweiToWeiHex } from '@/utils'
+import { GasFeeEstimates } from '@/services/gas-estimation/types'
 
 import {
   RpcFetcher,
@@ -49,51 +40,19 @@ export class GasPriceOracle implements OracleProvider {
     })
   }
 
-  public async gasPrices(payload: GetGasPriceInput = {}): Promise<GasPrice | EstimatedGasPrice> {
+  public async gasPrices(payload: GetGasPriceInput = {}): Promise<GasPrice | EstimatedGasPrice | GasFeeEstimates> {
     const { fallbackGasPrices, shouldGetMedian, isLegacy = false } = payload
     if (isLegacy) {
       return await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
     }
     try {
-      return await this.eip1559.estimateFees(fallbackGasPrices?.estimated)
+      const result = await this.eip1559.estimateFeesPerSpeed()
+      if (!result) {
+        throw new Error('get legacy gasPrice')
+      }
+      return result
     } catch {
       return await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
     }
   }
-
-  public async getTxGasParams(payload: GetTxGasParamsInput = {}): Promise<GetTxGasParamsRes> {
-    const { fallbackGasPrices, shouldGetMedian, isLegacy = false, bumpPercent = 0, legacySpeed = 'fast' } = payload
-
-    if (isLegacy) {
-      const legacyGasPrice = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
-
-      return { gasPrice: fromGweiToWeiHex(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent)) }
-    }
-
-    try {
-      const eipParams = await this.eip1559.estimateFees(fallbackGasPrices?.estimated)
-      return {
-        maxFeePerGas: fromGweiToWeiHex(bumpOnPercent(eipParams.maxFeePerGas, bumpPercent)),
-        maxPriorityFeePerGas: fromGweiToWeiHex(bumpOnPercent(eipParams.maxPriorityFeePerGas, bumpPercent)),
-      }
-    } catch {
-      const legacyGasPrice = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
-
-      return { gasPrice: fromGweiToWeiHex(bumpOnPercent(legacyGasPrice[legacySpeed], bumpPercent)) }
-    }
-  }
-
-  public async gasPricesWithEstimate(payload: GasPricesWithEstimateInput = {}): Promise<GasPriceWithEstimate> {
-    const { fallbackGasPrices, shouldGetMedian } = payload
-
-    const estimate = await this.eip1559.estimateFees(fallbackGasPrices?.estimated)
-    const gasPrices = await this.legacy.gasPrices(fallbackGasPrices?.gasPrices, shouldGetMedian)
-
-    return {
-      estimate,
-      gasPrices,
-    }
-  }
-
-  public async gasPricesEip1559PerSpeed(payload): Promise<GasPricesEip1559Res> {}
 }

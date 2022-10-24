@@ -24,7 +24,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://api.mycryptoapi.com/eth',
     defaultGasPrice: 22,
     maxGasPrice: 1500,
-    blocksCount: 10,
+    blocksCount: 30,
     percentile: 5,
   },
   [ChainId.BSC]: {
@@ -32,7 +32,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://bsc-dataseed1.ninicoin.io',
     defaultGasPrice: 5,
     maxGasPrice: 200,
-    blocksCount: 10,
+    blocksCount: 30,
     percentile: 5,
   },
   [ChainId.XDAI]: {
@@ -40,7 +40,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://rpc.gnosischain.com',
     defaultGasPrice: 5,
     maxGasPrice: 200,
-    blocksCount: 200,
+    blocksCount: 30,
     percentile: 5,
   },
   [ChainId.POLYGON]: {
@@ -48,7 +48,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://rpc-mainnet.maticvigil.com',
     defaultGasPrice: 75,
     maxGasPrice: 1000,
-    blocksCount: 10,
+    blocksCount: 30,
     percentile: 5,
   },
   [ChainId.OPTIMISM]: {
@@ -56,7 +56,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://mainnet.optimism.io',
     defaultGasPrice: 0.001,
     maxGasPrice: 5,
-    blocksCount: 10,
+    blocksCount: 30,
     percentile: 5,
   },
   [ChainId.ARBITRUM]: {
@@ -64,7 +64,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
     defaultGasPrice: 3,
     maxGasPrice: 15,
-    blocksCount: 10,
+    blocksCount: 30,
     percentile: 5,
   },
   [ChainId.AVAX]: {
@@ -72,7 +72,7 @@ export const NETWORKS: Record<number, NetworksConfig> = {
     rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
     defaultGasPrice: 50,
     maxGasPrice: 1000,
-    blocksCount: 10,
+    blocksCount: 30,
     percentile: 5,
   },
 }
